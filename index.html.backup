@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Animated GitHub README Creator</title>
+<link rel="icon" href="assets/logo.svg" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <div class="nav-left">
+      <img src="assets/logo.svg" alt="Logo" class="nav-logo" />
+      <span class="nav-title">README Creator</span>
+    </div>
+    <div class="nav-center">
+      <a href="#generator" class="nav-link">Generator</a>
+      <a href="#templates" class="nav-link">Templates</a>
+      <a href="#preview" class="nav-link">Preview</a>
+      <a href="#history" class="nav-link">History</a>
+    </div>
+    <div class="nav-right">
+      <a href="https://github.com" target="_blank" class="nav-icon" title="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+      <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+        <span id="themeIcon">🌙</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<section id="hero" class="hero-section">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badges">
+      <span class="hero-badge">🚀 10 Templates</span>
+      <span class="hero-badge">⚡ Live Preview</span>
+      <span class="hero-badge">🐍 Python Powered</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="gradient-text">Animated GitHub</span><br/>
+      <span class="gradient-text-2">README Creator</span>
+    </h1>
+    <p class="hero-subtitle" id="heroTyping"></p>
+    <p class="hero-desc">Generate beautiful, animated GitHub Profile README files with live preview. Choose from 10 unique templates, customize every section, and download your perfect profile.</p>
+    <div class="hero-actions">
+      <a href="#generator" class="btn btn-primary">Create README</a>
+      <a href="#templates" class="btn btn-secondary">Explore Templates</a>
+    </div>
+  </div>
+  <div class="hero-floating">
+    <span class="float-icon" style="top:15%;left:10%;animation-delay:0s">⚛️</span>
+    <span class="float-icon" style="top:25%;right:15%;animation-delay:0.5s">🐍</span>
+    <span class="float-icon" style="bottom:30%;left:8%;animation-delay:1s">📊</span>
+    <span class="float-icon" style="bottom:20%;right:10%;animation-delay:1.5s">🎨</span>
+    <span class="float-icon" style="top:50%;left:5%;animation-delay:2s">💻</span>
+    <span class="float-icon" style="top:60%;right:5%;animation-delay:2.5s">🚀</span>
+  </div>
+</section>
+
+<section class="templates" id="templates">
+  <div class="section-header">
+    <h2>Choose Your Template</h2>
+    <p>Ten unique designs — each with a distinct visual identity and layout</p>
+  </div>
+
+  <div class="template-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="soft">Soft</button>
+    <button class="filter-btn" data-filter="glass">Glass</button>
+    <button class="filter-btn" data-filter="real">Real</button>
+    <button class="filter-btn" data-filter="playful">Playful</button>
+    <button class="filter-btn" data-filter="dark">Dark</button>
+    <button class="filter-btn" data-filter="icy">Icy</button>
+    <button class="filter-btn" data-filter="vibrant">Vibrant</button>
+    <button class="filter-btn" data-filter="depth">Depth</button>
+    <button class="filter-btn" data-filter="geo">Geo</button>
+    <button class="filter-btn" data-filter="dynamic">Dynamic</button>
+  </div>
+
+  <div class="template-grid" id="templateGrid">
+
+    <div class="template-card" data-template="neumorphism" data-filter="soft" style="--card-bg:#e0e5ec;--card-border:#b8bec6;--card-accent:#2d3436">
+      <div class="tcard-preview tcard-preview--neumorphism">
+        <div class="tprev-neu">
+          <div class="tprev-neu-emoji">⚪</div>
+          <div class="tprev-neu-name">John Doe</div>
+          <div class="tprev-neu-title">Full-Stack Developer</div>
+          <div class="tprev-neu-divider"></div>
+          <div class="tprev-neu-badges">
+            <span class="tprev-neu-badge">React</span>
+            <span class="tprev-neu-badge">Python</span>
+            <span class="tprev-neu-badge">TS</span>
+          </div>
+          <div class="tprev-neu-btn">Profile</div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">⚪ Neumorphism</h3>
+        <p class="tcard-desc">Soft light gray UI with raised/pressed shadow effects, embossed badges, and subtle depth through soft shadows.</p>
+        <div class="tcard-tags"><span>Soft</span><span>Light</span><span>Shadow</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="neumorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="neumorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="glassmorphism" data-filter="glass" style="--card-bg:linear-gradient(135deg,#1a0533,#0d1b3e);--card-border:rgba(255,255,255,0.15);--card-accent:#a78bfa">
+      <div class="tcard-preview tcard-preview--glassmorphism">
+        <div class="tprev-glass">
+          <div class="tprev-glass-orb tprev-glass-orb--1"></div>
+          <div class="tprev-glass-orb tprev-glass-orb--2"></div>
+          <div class="tprev-glass-orb tprev-glass-orb--3"></div>
+          <div class="tprev-glass-card">
+            <div class="tprev-glass-avatar">💎</div>
+            <div class="tprev-glass-name">Ruby Frost</div>
+            <div class="tprev-glass-title">UI/UX Designer</div>
+            <div class="tprev-glass-divider"></div>
+            <div class="tprev-glass-tags">
+              <span class="tprev-glass-tag">Figma</span>
+              <span class="tprev-glass-tag">React</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">💎 Glassmorphism</h3>
+        <p class="tcard-desc">Frosted glass cards with backdrop blur, floating gradient orbs, thin bordered elements. Elegant modern aesthetic.</p>
+        <div class="tcard-tags"><span>Glass</span><span>Blur</span><span>Premium</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="glassmorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="glassmorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="skeuomorphism" data-filter="real" style="--card-bg:#f5f0e8;--card-border:#d4c5a9;--card-accent:#8b4513">
+      <div class="tcard-preview tcard-preview--skeuomorphism">
+        <div class="tprev-skeu">
+          <div class="tprev-skeu-notebook">
+            <div class="tprev-skeu-emoji">📒</div>
+            <div class="tprev-skeu-name">Ada Lovelace</div>
+            <div class="tprev-skeu-title">Code Poet</div>
+            <div class="tprev-skeu-tabs">
+              <span class="tprev-skeu-tab active">Bio</span>
+              <span class="tprev-skeu-tab">Skills</span>
+              <span class="tprev-skeu-tab">Work</span>
+            </div>
+            <div class="tprev-skeu-tags">
+              <span class="tprev-skeu-tag">Python</span>
+              <span class="tprev-skeu-tag">Math</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">📒 Skeuomorphism</h3>
+        <p class="tcard-desc">Notebook paper texture, leather warm brown accents, physical tab folders, realistic grain. Tangible familiarity.</p>
+        <div class="tcard-tags"><span>Realistic</span><span>Texture</span><span>Warm</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="skeuomorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="skeuomorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="claymorphism" data-filter="playful" style="--card-bg:linear-gradient(135deg,#fce4ec,#e8eaf6);--card-border:#f8bbd0;--card-accent:#e91e63">
+      <div class="tcard-preview tcard-preview--claymorphism">
+        <div class="tprev-clay">
+          <div class="tprev-clay-card">
+            <div class="tprev-clay-emoji">🧸</div>
+            <div class="tprev-clay-name">Molly Clay</div>
+            <div class="tprev-clay-title">Creative Coder</div>
+            <div class="tprev-clay-badges">
+              <span class="tprev-clay-badge">Art</span>
+              <span class="tprev-clay-badge">Code</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">🧸 Claymorphism</h3>
+        <p class="tcard-desc">Thick rounded pastel clay shapes, puffy soft shadows, bouncy feel. Playful and tactile design language.</p>
+        <div class="tcard-tags"><span>Pastel</span><span>Rounded</span><span>Playful</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="claymorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="claymorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="auroraism" data-filter="dark" style="--card-bg:#0a0e1a;--card-border:#00ff8844;--card-accent:#00ff88">
+      <div class="tcard-preview tcard-preview--auroraism">
+        <div class="tprev-aurora">
+          <div class="tprev-aurora-bg"></div>
+          <div class="tprev-aurora-wave--1"></div>
+          <div class="tprev-aurora-wave--2"></div>
+          <div class="tprev-aurora-wave--3"></div>
+          <div class="tprev-aurora-content">
+            <div class="tprev-aurora-emoji">🌌</div>
+            <div class="tprev-aurora-name">Nova Star</div>
+            <div class="tprev-aurora-title">Space Engineer</div>
+            <div class="tprev-aurora-tags">
+              <span class="tprev-aurora-tag">Rust</span>
+              <span class="tprev-aurora-tag">Go</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">🌌 Auroraism</h3>
+        <p class="tcard-desc">Deep space dark background with animated aurora light waves in green, cyan and purple. Glowing text, cosmic aura.</p>
+        <div class="tcard-tags"><span>Dark</span><span>Aurora</span><span>Cosmic</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="auroraism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="auroraism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="frostedmorphism" data-filter="icy" style="--card-bg:linear-gradient(135deg,#e3f2fd,#bbdefb);--card-border:#ffffff;--card-accent:#1565c0">
+      <div class="tcard-preview tcard-preview--frostedmorphism">
+        <div class="tprev-frost">
+          <div class="tprev-frost-particles">
+            <span class="tprev-frost-particle">❄</span>
+            <span class="tprev-frost-particle">❄</span>
+            <span class="tprev-frost-particle">❄</span>
+          </div>
+          <div class="tprev-frost-card">
+            <div class="tprev-frost-emoji">❄️</div>
+            <div class="tprev-frost-name">Winter Dev</div>
+            <div class="tprev-frost-title">Frost Engineer</div>
+            <div class="tprev-frost-divider"></div>
+            <div class="tprev-frost-tags">
+              <span class="tprev-frost-tag">Python</span>
+              <span class="tprev-frost-tag">Flask</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">❄️ Frostedmorphism</h3>
+        <p class="tcard-desc">Icy blue gradient backdrop, frosted white translucent cards, snow particles, crisp borders. Clean winter aesthetic.</p>
+        <div class="tcard-tags"><span>Icy</span><span>Frost</span><span>Clean</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="frostedmorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="frostedmorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="gradientmorphism" data-filter="vibrant" style="--card-bg:linear-gradient(135deg,#0f0c29,#302b63,#24243e);--card-border:#f472b6;--card-accent:#f472b6">
+      <div class="tcard-preview tcard-preview--gradientmorphism">
+        <div class="tprev-grad">
+          <div class="tprev-grad-bg"></div>
+          <div class="tprev-grad-content">
+            <div class="tprev-grad-emoji">🌈</div>
+            <div class="tprev-grad-name">Chroma Dev</div>
+            <div class="tprev-grad-title">Full-Stack Artist</div>
+            <div class="tprev-grad-badges">
+              <span class="tprev-grad-badge">React</span>
+              <span class="tprev-grad-badge">Vue</span>
+            </div>
+            <div class="tprev-grad-line"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">🌈 Gradientmorphism</h3>
+        <p class="tcard-desc">Animated gradient backgrounds, color-shifting elements, vibrant purple-to-cyan palette. Energetic and modern.</p>
+        <div class="tcard-tags"><span>Gradient</span><span>Vibrant</span><span>Colorful</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="gradientmorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="gradientmorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="layermorphism" data-filter="depth" style="--card-bg:#1a1a2e;--card-border:#2a2a4e;--card-accent:#a78bfa">
+      <div class="tcard-preview tcard-preview--layermorphism">
+        <div class="tprev-layer">
+          <div class="tprev-layer-card tprev-layer-card--1">
+            <div class="tprev-layer-emoji">🗂️</div>
+            <div class="tprev-layer-name">Layered One</div>
+          </div>
+          <div class="tprev-layer-card tprev-layer-card--2">
+            <div class="tprev-layer-emoji">📁</div>
+            <div class="tprev-layer-title">Middle Layer</div>
+          </div>
+          <div class="tprev-layer-card tprev-layer-card--3">
+            <div class="tprev-layer-emoji">📄</div>
+            <div class="tprev-layer-badges">
+              <span class="tprev-layer-badge">Base</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">🗂️ Layermorphism</h3>
+        <p class="tcard-desc">Three stacked cards at different depths with offset shadows, clear depth hierarchy. Layered dimensional UI.</p>
+        <div class="tcard-tags"><span>Depth</span><span>Stack</span><span>Layers</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="layermorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="layermorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="polymorphism" data-filter="geo" style="--card-bg:#0f0a1e;--card-border:#f472b644;--card-accent:#f472b6">
+      <div class="tcard-preview tcard-preview--polymorphism">
+        <div class="tprev-poly">
+          <div class="tprev-poly-shape--1"></div>
+          <div class="tprev-poly-shape--2"></div>
+          <div class="tprev-poly-shape--3"></div>
+          <div class="tprev-poly-content">
+            <div class="tprev-poly-emoji">🔷</div>
+            <div class="tprev-poly-name">Geo Coder</div>
+            <div class="tprev-poly-title">Algorithm Artist</div>
+            <div class="tprev-poly-tags">
+              <span class="tprev-poly-tag">Math</span>
+              <span class="tprev-poly-tag">Logic</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">🔷 Polymorphism</h3>
+        <p class="tcard-desc">Geometric polygon shapes, asymmetric layout, diamond and hexagonal decorations. Bold structured geometry.</p>
+        <div class="tcard-tags"><span>Geometric</span><span>Shapes</span><span>Bold</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="polymorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="polymorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="template-card" data-template="metamorphism" data-filter="dynamic" style="--card-bg:#0d0d1a;--card-border:#c084fc44;--card-accent:#c084fc">
+      <div class="tcard-preview tcard-preview--metamorphism">
+        <div class="tprev-meta">
+          <div class="tprev-meta-border"></div>
+          <div class="tprev-meta-shape"></div>
+          <div class="tprev-meta-content">
+            <div class="tprev-meta-emoji">🦋</div>
+            <div class="tprev-meta-name">Morph Dev</div>
+            <div class="tprev-meta-title">Shape Shifter</div>
+            <div class="tprev-meta-tags">
+              <span class="tprev-meta-tag">React</span>
+              <span class="tprev-meta-tag">Python</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tcard-body">
+        <h3 class="tcard-title">🦋 Metamorphism</h3>
+        <p class="tcard-desc">Transforming border animations, shape-morphing decorations, glass-gradient hybrid. Dynamic and premium feel.</p>
+        <div class="tcard-tags"><span>Dynamic</span><span>Transform</span><span>Premium</span></div>
+        <div class="tcard-actions">
+          <button class="btn btn-sm btn-primary select-template" data-template="metamorphism">Select</button>
+          <button class="btn btn-sm btn-ghost preview-template" data-template="metamorphism">Preview</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="generator" class="generator-section">
+  <div class="section-header">
+    <h2>README Generator</h2>
+    <p>Fill in your details and generate a stunning profile README</p>
+    <div class="generator-actions-top">
+      <button class="btn btn-sm btn-ghost" id="loadDemoBtn">📥 Load Demo Data</button>
+      <button class="btn btn-sm btn-ghost" id="clearFormBtn">🗑️ Clear Form</button>
+    </div>
+  </div>
+
+  <div class="generator-layout">
+    <div class="form-panel" id="formPanel">
+      <div class="form-tabs">
+        <button class="form-tab active" data-tab="personal">Personal</button>
+        <button class="form-tab" data-tab="dev">Developer</button>
+        <button class="form-tab" data-tab="skills">Skills</button>
+        <button class="form-tab" data-tab="social">Social</button>
+        <button class="form-tab" data-tab="projects">Projects</button>
+        <button class="form-tab" data-tab="certs">Certs</button>
+        <button class="form-tab" data-tab="settings">Settings</button>
+      </div>
+
+      <div class="form-content" id="formContent">
+        <div class="form-tab-content active" id="tab-personal">
+          <h3>Personal Information</h3>
+          <div class="form-group"><label>Full Name *</label><input type="text" id="name" placeholder="Surya K" required /></div>
+          <div class="form-group"><label>GitHub Username *</label><input type="text" id="username" placeholder="Suryakumar45" required /><small class="field-hint">Used for all GitHub widgets</small></div>
+          <div class="form-group"><label>Professional Title</label><input type="text" id="title" placeholder="BCA Student & Aspiring Full-Stack Developer" /></div>
+          <div class="form-group"><label>Short Bio</label><textarea id="bio" rows="3" placeholder="Tell people about yourself..."></textarea></div>
+          <div class="form-row">
+            <div class="form-group"><label>Location</label><input type="text" id="location" placeholder="Coimbatore, India" /></div>
+            <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="user@example.com" /></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Education</label><input type="text" id="education" placeholder="Bachelor of Computer Applications" /></div>
+            <div class="form-group"><label>College/Institution</label><input type="text" id="college" placeholder="PSG College of Arts & Science" /></div>
+          </div>
+          <div class="form-group"><label>Portfolio URL</label><input type="url" id="portfolio" placeholder="https://yourportfolio.com" /></div>
+        </div>
+
+        <div class="form-tab-content" id="tab-dev">
+          <h3>Developer Information</h3>
+          <div class="form-group"><label>About Me</label><textarea id="aboutMe" rows="3" placeholder="Write more about yourself..."></textarea></div>
+          <div class="form-group"><label>Currently Working On</label><input type="text" id="currentProject" placeholder="Building web apps with React and FastAPI" /></div>
+          <div class="form-group"><label>Currently Learning</label><input type="text" id="learning" placeholder="Full-Stack Web Development with React, Python, FastAPI" /></div>
+          <div class="form-group"><label>Collaboration Interests</label><input type="text" id="collab" placeholder="Web dev projects, open-source, hackathons" /></div>
+          <div class="form-group"><label>Areas of Expertise</label><input type="text" id="expertise" placeholder="Frontend, Backend, Databases" /></div>
+          <div class="form-group"><label>Career Goal</label><input type="text" id="goal" placeholder="Build a strong portfolio and land my first dev role" /></div>
+          <div class="form-group"><label>Fun Fact</label><input type="text" id="funFact" placeholder="I debug better with chai!" /></div>
+          <div class="form-group"><label>Availability</label><select id="status"><option value="">Select...</option><option value="Open to work">Open to work</option><option value="Open for collaboration">Open for collaboration</option><option value="Available for hire">Available for hire</option><option value="Currently employed">Currently employed</option></select></div>
+        </div>
+
+        <div class="form-tab-content" id="tab-skills">
+          <h3>Skills</h3>
+          <p class="field-hint">Click chips to toggle. Type custom skills and press Enter to add.</p>
+          <div class="skill-categories">
+            <div class="skill-cat">
+              <h4>Programming Languages</h4>
+              <div class="skill-chips" data-category="languages">
+                <span class="chip" data-value="JavaScript">JavaScript</span>
+                <span class="chip" data-value="TypeScript">TypeScript</span>
+                <span class="chip" data-value="Python">Python</span>
+                <span class="chip" data-value="Java">Java</span>
+                <span class="chip" data-value="C">C</span>
+                <span class="chip" data-value="C++">C++</span>
+              </div>
+              <input type="text" class="custom-skill-input" placeholder="Add custom skill + Enter" />
+            </div>
+            <div class="skill-cat">
+              <h4>Frontend</h4>
+              <div class="skill-chips" data-category="frontend">
+                <span class="chip" data-value="HTML">HTML</span>
+                <span class="chip" data-value="CSS">CSS</span>
+                <span class="chip" data-value="JavaScript">JavaScript</span>
+                <span class="chip" data-value="React">React</span>
+                <span class="chip" data-value="Vue.js">Vue.js</span>
+                <span class="chip" data-value="Tailwind CSS">Tailwind CSS</span>
+                <span class="chip" data-value="Bootstrap">Bootstrap</span>
+              </div>
+              <input type="text" class="custom-skill-input" placeholder="Add custom skill + Enter" />
+            </div>
+            <div class="skill-cat">
+              <h4>Backend</h4>
+              <div class="skill-chips" data-category="backend">
+                <span class="chip" data-value="Node.js">Node.js</span>
+                <span class="chip" data-value="Express">Express</span>
+                <span class="chip" data-value="FastAPI">FastAPI</span>
+                <span class="chip" data-value="Flask">Flask</span>
+                <span class="chip" data-value="Django">Django</span>
+              </div>
+              <input type="text" class="custom-skill-input" placeholder="Add custom skill + Enter" />
+            </div>
+            <div class="skill-cat">
+              <h4>Databases</h4>
+              <div class="skill-chips" data-category="databases">
+                <span class="chip" data-value="MySQL">MySQL</span>
+                <span class="chip" data-value="PostgreSQL">PostgreSQL</span>
+                <span class="chip" data-value="MongoDB">MongoDB</span>
+                <span class="chip" data-value="SQLite">SQLite</span>
+                <span class="chip" data-value="Supabase">Supabase</span>
+              </div>
+              <input type="text" class="custom-skill-input" placeholder="Add custom skill + Enter" />
+            </div>
+            <div class="skill-cat">
+              <h4>Cloud & DevOps</h4>
+              <div class="skill-chips" data-category="cloud">
+                <span class="chip" data-value="AWS">AWS</span>
+                <span class="chip" data-value="Docker">Docker</span>
+                <span class="chip" data-value="GitHub Actions">GitHub Actions</span>
+              </div>
+              <input type="text" class="custom-skill-input" placeholder="Add custom skill + Enter" />
+            </div>
+            <div class="skill-cat">
+              <h4>Tools</h4>
+              <div class="skill-chips" data-category="tools">
+                <span class="chip" data-value="Git">Git</span>
+                <span class="chip" data-value="GitHub">GitHub</span>
+                <span class="chip" data-value="VS Code">VS Code</span>
+                <span class="chip" data-value="Figma">Figma</span>
+              </div>
+              <input type="text" class="custom-skill-input" placeholder="Add custom skill + Enter" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-tab-content" id="tab-social">
+          <h3>Social Links</h3>
+          <p class="field-hint">Only links you fill in will appear in the README.</p>
+          <div class="social-grid">
+            <div class="form-group"><label>LinkedIn</label><input type="url" class="social-input" data-platform="LinkedIn" placeholder="https://linkedin.com/in/username" /></div>
+            <div class="form-group"><label>Instagram</label><input type="url" class="social-input" data-platform="Instagram" placeholder="https://instagram.com/username" /></div>
+            <div class="form-group"><label>X (Twitter)</label><input type="url" class="social-input" data-platform="X" placeholder="https://x.com/username" /></div>
+            <div class="form-group"><label>YouTube</label><input type="url" class="social-input" data-platform="YouTube" placeholder="https://youtube.com/@channel" /></div>
+            <div class="form-group"><label>Dev.to</label><input type="url" class="social-input" data-platform="Dev.to" placeholder="https://dev.to/username" /></div>
+            <div class="form-group"><label>LeetCode</label><input type="url" class="social-input" data-platform="LeetCode" placeholder="https://leetcode.com/username" /></div>
+            <div class="form-group"><label>HackerRank</label><input type="url" class="social-input" data-platform="HackerRank" placeholder="https://hackerrank.com/username" /></div>
+            <div class="form-group"><label>CodePen</label><input type="url" class="social-input" data-platform="CodePen" placeholder="https://codepen.io/username" /></div>
+            <div class="form-group"><label>Discord</label><input type="text" class="social-input" data-platform="Discord" placeholder="Discord username#tag" /></div>
+          </div>
+        </div>
+
+        <div class="form-tab-content" id="tab-projects">
+          <h3>Featured Projects</h3>
+          <p class="field-hint">Add projects you want to showcase. At least a name is required per project.</p>
+          <div id="projectsContainer">
+            <div class="project-entry">
+              <div class="form-row">
+                <div class="form-group"><label>Project Name</label><input type="text" class="project-name" placeholder="AI Resume Creator" /></div>
+                <div class="form-group"><label>Description</label><input type="text" class="project-desc" placeholder="A tool to create professional resumes" /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>GitHub Repo (user/repo)</label><input type="text" class="project-repo" placeholder="Suryakumar45/AI-Resume-Creator" /></div>
+                <div class="form-group"><label>Live Demo URL</label><input type="url" class="project-demo" placeholder="https://..." /></div>
+              </div>
+              <div class="form-group"><label>Technologies (comma separated)</label><input type="text" class="project-techs" placeholder="React, Python, FastAPI" /></div>
+              <button class="btn btn-sm btn-danger remove-project" style="display:none;">Remove Project</button>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-ghost" id="addProjectBtn">+ Add Project</button>
+        </div>
+
+        <div class="form-tab-content" id="tab-certs">
+          <h3>Certifications & Achievements</h3>
+          <div id="certsContainer">
+            <div class="cert-entry">
+              <div class="form-row">
+                <div class="form-group"><label>Certification Name</label><input type="text" class="cert-name" placeholder="Python for Everybody" /></div>
+                <div class="form-group"><label>Issuing Organization</label><input type="text" class="cert-org" placeholder="Coursera" /></div>
+              </div>
+              <div class="form-group"><label>Certification URL</label><input type="url" class="cert-url" placeholder="https://..." /></div>
+              <button class="btn btn-sm btn-danger remove-cert" style="display:none;">Remove</button>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-ghost" id="addCertBtn">+ Add Certification</button>
+
+          <h3 style="margin-top:20px;">Achievements</h3>
+          <div id="achievementsContainer">
+            <div class="achievement-entry">
+              <div class="form-row">
+                <div class="form-group"><label>Achievement Title</label><input type="text" class="achievement-title" placeholder="Completed 100 Days of Code" /></div>
+                <div class="form-group"><label>Description</label><input type="text" class="achievement-desc" placeholder="Successfully completed the #100DaysOfCode challenge" /></div>
+              </div>
+              <button class="btn btn-sm btn-danger remove-achievement" style="display:none;">Remove</button>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-ghost" id="addAchievementBtn">+ Add Achievement</button>
+        </div>
+
+        <div class="form-tab-content" id="tab-settings">
+          <h3>Customization</h3>
+          <div class="form-row">
+            <div class="form-group"><label>Accent Color</label><input type="color" id="accentColor" value="#8B5CF6" /></div>
+            <div class="form-group"><label>Typing Font</label>
+              <select id="typingFont">
+                <option value="Inter">Inter</option>
+                <option value="Fira Code">Fira Code</option>
+                <option value="monospace">Monospace</option>
+                <option value="Courier New">Courier New</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Typing Speed (ms)</label><input type="number" id="typingSpeed" value="3000" min="1000" max="8000" step="500" /></div>
+          </div>
+          <div class="form-group"><label>Custom Typing Lines (one per line)</label><textarea id="typingLines" rows="3" placeholder="Hi there 👋, I'm..."></textarea></div>
+          <h3>Section Visibility</h3>
+          <div class="toggle-grid">
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showAbout" data-section="showAbout" checked /><span>About Me</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showLearning" data-section="showLearning" checked /><span>Current Learning</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showSkills" data-section="showSkills" checked /><span>Skills</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showGithubStats" data-section="showGithubStats" checked /><span>GitHub Stats</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showStreak" data-section="showStreak" checked /><span>GitHub Streak</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showTopLangs" data-section="showTopLangs" checked /><span>Top Languages</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showTrophy" data-section="showTrophy" /><span>GitHub Trophy</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showActivityGraph" data-section="showActivityGraph" checked /><span>Activity Graph</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showSnake" data-section="showSnake" /><span>Contribution Snake</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showVisitorCounter" data-section="showVisitorCounter" checked /><span>Visitor Counter</span></label>
+            <label class="toggle"><input type="checkbox" class="section-toggle" id="showFooter" data-section="showFooter" checked /><span>Animated Footer</span></label>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" id="generateBtn">Generate README</button>
+            <button class="btn btn-secondary" id="snakeWorkflowBtn">Generate Snake Workflow</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-panel" id="preview">
+      <div class="preview-toolbar">
+        <div class="preview-actions">
+          <div class="preview-mode-switch">
+            <button class="mode-btn active" data-mode="desktop" title="Desktop">🖥️</button>
+            <button class="mode-btn" data-mode="mobile" title="Mobile">📱</button>
+          </div>
+          <button class="btn btn-sm btn-ghost" id="copyBtn" title="Copy">📋</button>
+          <button class="btn btn-sm btn-ghost" id="downloadBtn" title="Download README.md">⬇️</button>
+          <button class="btn btn-sm btn-ghost" id="saveHistoryBtn" title="Save">💾</button>
+          <button class="btn btn-sm btn-ghost" id="fullscreenBtn" title="Full Screen">⛶</button>
+        </div>
+      </div>
+      <div class="preview-content">
+        <div class="render-pane active" id="renderPane">
+          <div class="render-container" id="renderContainer">
+            <div class="render-placeholder">
+              <div class="placeholder-icon">📝</div>
+              <h3>No README Generated Yet</h3>
+              <p>Fill in your details and click <strong>Generate README</strong> to see the live preview.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="history-section" id="history">
+  <div class="section-header">
+    <h2>History</h2>
+    <p>Previously generated READMEs saved in your browser</p>
+    <div class="history-controls">
+      <input type="text" id="historySearch" placeholder="Search history..." class="history-search" />
+      <select id="historyFilter" class="history-filter">
+        <option value="all">All Templates</option>
+        <option value="neumorphism">Neumorphism</option>
+        <option value="glassmorphism">Glassmorphism</option>
+        <option value="skeuomorphism">Skeuomorphism</option>
+        <option value="claymorphism">Claymorphism</option>
+        <option value="auroraism">Auroraism</option>
+        <option value="frostedmorphism">Frostedmorphism</option>
+        <option value="gradientmorphism">Gradientmorphism</option>
+        <option value="layermorphism">Layermorphism</option>
+        <option value="polymorphism">Polymorphism</option>
+        <option value="metamorphism">Metamorphism</option>
+      </select>
+    </div>
+  </div>
+  <div class="history-grid" id="historyGrid">
+    <div class="history-empty">
+      <p>No saved READMEs yet. Generate one and save it!</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="assets/logo.svg" alt="Logo" class="footer-logo" />
+      <span>Animated GitHub README Creator</span>
+    </div>
+    <div class="footer-links">
+      <a href="#generator">Generator</a>
+      <a href="#templates">Templates</a>
+      <a href="#history">History</a>
+    </div>
+    <div class="footer-copy">
+      Built with ❤️ using HTML, CSS, JavaScript & Pyodide
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Modal</h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

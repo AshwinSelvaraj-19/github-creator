@@ -1,0 +1,1038 @@
+(function() {
+  'use strict';
+
+  let pyodide = null;
+  let pyodideReady = false;
+  let currentMarkdown = '';
+  let selectedTemplate = 'neumorphism';
+  let historyItems = [];
+  let isGenerating = false;
+  let lastRenderedMarkdown = '';
+  let lastCompatContent = '';
+  let lastCompatResult = null;
+  let selectedTemplateId = null;
+  const INCLUDE_EXTERNAL_CAPSULES = false;
+
+  function debounce(fn, delay) {
+    var timer = null;
+    return function() {
+      var ctx = this, args = arguments;
+      if (timer) window.clearTimeout(timer);
+      timer = window.setTimeout(function() { fn.apply(ctx, args); }, delay);
+    };
+  }
+
+  function isValidGitHubUsername(username) {
+    if (!username || typeof username !== 'string') return false;
+    return /^(?!-)(?!.*--)[a-zA-Z0-9-]{1,39}(?<!-)$/.test(username.trim());
+  }
+
+  const DEMO_DATA = {
+    name: 'Surya K',
+    username: 'Suryakumar45',
+    title: 'BCA Student & Aspiring Full-Stack Developer',
+    bio: 'Passionate BCA student who enjoys building modern web applications, learning new technologies and solving real-world problems.',
+    location: 'Coimbatore, India',
+    email: 'suryakumar45@example.com',
+    education: 'Bachelor of Computer Applications',
+    college: 'PSG College of Arts and Science',
+    aboutMe: 'I am a dedicated BCA student with a strong passion for full-stack web development. I love turning ideas into functional, beautiful web applications.',
+    learning: 'Full-Stack Web Development with React, Python, FastAPI, and modern database technologies',
+    funFact: 'I debug better with chai than with console.log!'
+  };
+
+  const TYPING_LINES = {
+    neumorphism: ['Hi there 👋', 'Soft shadows, clean code', 'Minimal by design'],
+    glassmorphism: ['💎 Ruby Frost', 'UI/UX Designer', 'Frosted elegance'],
+    skeuomorphism: ['📒 Ada Lovelace', 'Code Poet', 'Real and tangible'],
+    claymorphism: ['🧸 Molly Clay', 'Creative Coder', 'Soft and playful'],
+    auroraism: ['🌌 Nova Star', 'Space Engineer', 'Northern lights glow'],
+    frostedmorphism: ['❄️ Winter Dev', 'Frost Engineer', 'Crisp and icy'],
+    gradientmorphism: ['🌈 Chroma Dev', 'Full-Stack Artist', 'Colors in motion'],
+    layermorphism: ['🗂️ Layered One', 'Depth Architect', 'Stacked dimensions'],
+    polymorphism: ['🔷 Geo Coder', 'Algorithm Artist', 'Shapes and logic'],
+    metamorphism: ['🦋 Morph Dev', 'Shape Shifter', 'Ever evolving']
+  };
+
+  const TEMPLATE_CONFIGS = {
+    neumorphism: { emoji: '⚪', name: 'Neumorphism', filter: 'soft' },
+    glassmorphism: { emoji: '💎', name: 'Glassmorphism', filter: 'glass' },
+    skeuomorphism: { emoji: '📒', name: 'Skeuomorphism', filter: 'real' },
+    claymorphism: { emoji: '🧸', name: 'Claymorphism', filter: 'playful' },
+    auroraism: { emoji: '🌌', name: 'Auroraism', filter: 'dark' },
+    frostedmorphism: { emoji: '❄️', name: 'Frostedmorphism', filter: 'icy' },
+    gradientmorphism: { emoji: '🌈', name: 'Gradientmorphism', filter: 'vibrant' },
+    layermorphism: { emoji: '🗂️', name: 'Layermorphism', filter: 'depth' },
+    polymorphism: { emoji: '🔷', name: 'Polymorphism', filter: 'geo' },
+    metamorphism: { emoji: '🦋', name: 'Metamorphism', filter: 'dynamic' }
+  };
+
+  function getEl(id) { return document.getElementById(id); }
+
+  function showToast(msg, type = 'info') {
+    const container = getEl('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3000);
+  }
+
+  function openModal(title, content) {
+    getEl('modalTitle').textContent = title;
+    getEl('modalBody').innerHTML = content;
+    getEl('modalOverlay').classList.add('open');
+  }
+
+  function closeModal() { getEl('modalOverlay')?.classList.remove('open'); }
+  getEl('modalClose')?.addEventListener('click', closeModal);
+  getEl('modalOverlay')?.addEventListener('click', (e) => { if (e.target === e.currentTarget) closeModal(); });
+
+  function getFormData() {
+    const data = {
+      template: selectedTemplate,
+      name: getEl('name').value.trim() || 'User',
+      username: getEl('username').value.trim() || 'user',
+      title: getEl('title').value.trim() || 'Developer',
+      bio: getEl('bio').value.trim() || '',
+      location: getEl('location').value.trim() || '',
+      email: getEl('email').value.trim() || '',
+      education: getEl('education').value.trim() || '',
+      college: getEl('college').value.trim() || '',
+      portfolio: getEl('portfolio').value.trim() || '',
+      aboutMe: getEl('aboutMe').value.trim() || '',
+      currentProject: getEl('currentProject').value.trim() || '',
+      learning: getEl('learning').value.trim() || '',
+      collab: getEl('collab').value.trim() || '',
+      expertise: getEl('expertise').value.trim() || '',
+      goal: getEl('goal').value.trim() || '',
+      funFact: getEl('funFact').value.trim() || '',
+      status: getEl('status').value || '',
+      accentColor: getEl('accentColor').value.replace('#', ''),
+      typingFont: getEl('typingFont').value,
+      typingSpeed: parseInt(getEl('typingSpeed').value) || 3000,
+      typingLines: getEl('typingLines').value.trim().split('\n').filter(Boolean),
+      skills: getSkillsData(),
+      socialLinks: getSocialLinks(),
+      projects: getProjects(),
+      certifications: getCerts(),
+      achievements: getAchievements(),
+      showAbout: getEl('showAbout')?.checked ?? true,
+      showLearning: getEl('showLearning')?.checked ?? true,
+      showSkills: getEl('showSkills')?.checked ?? true,
+      showGithubStats: getEl('showGithubStats')?.checked ?? true,
+      showStreak: getEl('showStreak')?.checked ?? true,
+      showTopLangs: getEl('showTopLangs')?.checked ?? true,
+      showTrophy: getEl('showTrophy')?.checked ?? false,
+      showActivityGraph: getEl('showActivityGraph')?.checked ?? true,
+      showSnake: getEl('showSnake')?.checked ?? false,
+      showVisitorCounter: getEl('showVisitorCounter')?.checked ?? true,
+      showFooter: getEl('showFooter')?.checked ?? true,
+      useExternalCapsules: INCLUDE_EXTERNAL_CAPSULES,
+    };
+    return data;
+  }
+
+  function getSkillsData() {
+    const skills = {};
+    document.querySelectorAll('.skill-chips').forEach(container => {
+      const cat = container.dataset.category;
+      const active = [];
+      container.querySelectorAll('.chip.active').forEach(chip => active.push(chip.dataset.value));
+      container.parentElement.querySelectorAll('.custom-chip').forEach(chip => active.push(chip.dataset.value));
+      if (active.length) skills[cat] = active;
+    });
+    return skills;
+  }
+
+  function getSocialLinks() {
+    const links = [];
+    document.querySelectorAll('.social-input').forEach(input => {
+      const val = input.value.trim();
+      if (val) {
+        links.push({ platform: input.dataset.platform, url: val });
+      }
+    });
+    return links;
+  }
+
+  function getProjects() {
+    const projects = [];
+    document.querySelectorAll('.project-entry').forEach(entry => {
+      const name = entry.querySelector('.project-name')?.value?.trim();
+      if (name) {
+        projects.push({
+          name,
+          desc: entry.querySelector('.project-desc')?.value?.trim() || '',
+          repo: entry.querySelector('.project-repo')?.value?.trim() || '',
+          demo: entry.querySelector('.project-demo')?.value?.trim() || '',
+          techs: (entry.querySelector('.project-techs')?.value?.trim() || '').split(',').map(t => t.trim()).filter(Boolean)
+        });
+      }
+    });
+    return projects;
+  }
+
+  function getCerts() {
+    const certs = [];
+    document.querySelectorAll('.cert-entry').forEach(entry => {
+      const name = entry.querySelector('.cert-name')?.value?.trim();
+      if (name) {
+        certs.push({
+          name,
+          org: entry.querySelector('.cert-org')?.value?.trim() || '',
+          url: entry.querySelector('.cert-url')?.value?.trim() || ''
+        });
+      }
+    });
+    return certs;
+  }
+
+  function getAchievements() {
+    const achievements = [];
+    document.querySelectorAll('.achievement-entry').forEach(entry => {
+      const title = entry.querySelector('.achievement-title')?.value?.trim();
+      if (title) {
+        achievements.push({
+          title,
+          desc: entry.querySelector('.achievement-desc')?.value?.trim() || ''
+        });
+      }
+    });
+    return achievements;
+  }
+
+  function validateForm(data) {
+    const errors = [];
+    if (!data.name) errors.push('Full name is required.');
+    if (!data.username) errors.push('GitHub username is required.');
+    if (!/^[a-zA-Z0-9_-]+$/.test(data.username)) errors.push('GitHub username contains invalid characters.');
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errors.push('Invalid email format.');
+    if (data.portfolio && !data.portfolio.startsWith('http')) errors.push('Portfolio URL must start with http:// or https://.');
+    return errors;
+  }
+
+  function showErrors(errors) {
+    document.querySelectorAll('.form-error').forEach(e => e.remove());
+    errors.forEach(err => {
+      showToast(err, 'error');
+    });
+  }
+
+  async function generateREADME() {
+    const data = getFormData();
+    const errors = validateForm(data);
+    if (errors.length) { showErrors(errors); return; }
+
+    if (!pyodideReady) {
+      showToast('Loading Python engine... Please wait.', 'info');
+      await initPyodide();
+    }
+
+    const btn = getEl('generateBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+    isGenerating = true;
+
+    try {
+      const inputJson = JSON.stringify(data);
+      pyodide.globals.set('input_json', inputJson);
+      const result = await pyodide.runPythonAsync(
+        "import json; generate_readme(json.loads(input_json))"
+      );
+      currentMarkdown = typeof result === 'string' ? result : String(result);
+      if (currentMarkdown !== lastCompatContent) {
+        compatibilityCheck(currentMarkdown);
+        lastCompatContent = currentMarkdown;
+        lastCompatResult = null;
+      }
+      renderPreview(currentMarkdown);
+      if (result && typeof result.destroy === 'function') result.destroy();
+      showToast('README generated successfully!', 'success');
+    } catch (err) {
+      console.warn('Generation error:', err);
+      const msg = err.message || 'Unknown error during generation';
+      showToast('Failed to generate README: ' + msg, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Generate README';
+      isGenerating = false;
+    }
+  }
+
+
+
+  function compatibilityCheck(md) {
+    var issues = [];
+    var lines = md.split('\n');
+    var inFence = false;
+    var inHtmlComment = false;
+
+    var patterns = [
+      { re: /<style[^>]*>/gi, label: '<style> tag', severity: 'Error' },
+      { re: /\bstyle\s*=\s*["']/gi, label: 'inline style attribute', severity: 'Error' },
+      { re: /\bdisplay\s*:\s*(flex|grid|inline-flex|inline-grid)\b/gi, label: 'display:flex/grid', severity: 'Error' },
+      { re: /\bposition\s*:\s*(absolute|fixed|relative|sticky)\b/gi, label: 'CSS position', severity: 'Error' },
+      { re: /\bborder-radius\b/gi, label: 'border-radius', severity: 'Warning' },
+      { re: /\banimation\s*:/gi, label: 'CSS animation', severity: 'Error' },
+      { re: /@keyframes\b/gi, label: '@keyframes', severity: 'Error' },
+      { re: /\btransform\s*:/gi, label: 'CSS transform', severity: 'Error' },
+      { re: /\bbox-shadow\b/gi, label: 'box-shadow', severity: 'Warning' },
+      { re: /\bfilter\s*:/gi, label: 'CSS filter', severity: 'Error' },
+      { re: /\bbackdrop-filter\s*:/gi, label: 'backdrop-filter', severity: 'Error' },
+      { re: /\b(?:flex|grid)\s*:/gi, label: 'flex/grid CSS property', severity: 'Warning' },
+    ];
+
+    lines.forEach(function(line, idx) {
+      var trimmed = line.trim();
+      var lineNum = idx + 1;
+
+      // Track code fences
+      if (/^```/.test(trimmed)) {
+        inFence = !inFence;
+        return;
+      }
+      if (inFence) { return; }
+
+      // Track multi-line HTML comments
+      if (/^<!--/.test(trimmed) && !/-->/.test(trimmed)) {
+        inHtmlComment = true;
+        return;
+      }
+      if (inHtmlComment) {
+        if (/-->/.test(trimmed)) { inHtmlComment = false; }
+        return;
+      }
+      // Single-line HTML comment
+      if (/^<!--[\s\S]*-->$/.test(trimmed)) { return; }
+
+      // Strip inline code first (so URLs inside backticks are fully removed)
+      var cleaned = line.replace(/`[^`]+`/g, '');
+      // Strip URLs (http/https up to whitespace or closing quote/bracket/backtick)
+      cleaned = cleaned.replace(/https?:\/\/[^\s"'<>`]+/gi, '');
+      // Strip single-line HTML comments that start mid-line
+      cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, '');
+
+      patterns.forEach(function(p) {
+        p.re.lastIndex = 0;
+        var m;
+        while ((m = p.re.exec(cleaned)) !== null) {
+          issues.push({
+            line: lineNum,
+            text: trimmed.substring(0, 100),
+            reason: p.label,
+            severity: p.severity
+          });
+        }
+      });
+    });
+
+    // Build console report
+    var report = 'Compatibility Check\n\n';
+    var checkLabels = [
+      { label: 'No inline CSS', check: 'inline style attribute' },
+      { label: 'No <style> tags', check: '<style> tag' },
+      { label: 'No JavaScript', check: '@keyframes' },
+      { label: 'No unsupported HTML', check: '' },
+      { label: 'No flex/grid', check: '' },
+      { label: 'No animation CSS', check: 'CSS animation' },
+    ];
+    checkLabels.forEach(function(c) {
+      var pass = c.check ? !issues.some(function(i) { return i.reason === c.check; }) : !issues.some(function(i) { return i.severity === 'Error'; });
+      report += (pass ? '  \u2713' : '  \u2717') + ' ' + c.label + '\n';
+    });
+
+    if (issues.length > 0) {
+      report += '\n  \u2717 Unsupported CSS found\n\n';
+      issues.forEach(function(i) {
+        report += '  Line ' + i.line + ':\n';
+        report += '    ' + i.text + '\n';
+        report += '    Reason: ' + i.reason + '\n';
+        report += '    Severity: ' + i.severity + '\n\n';
+      });
+    } else {
+      report += '\n  \u2713 All checks passed\n';
+    }
+    console.log(report);
+
+    // Store for modal
+    window.__compatIssues = issues;
+
+    var errors = issues.filter(function(i) { return i.severity === 'Error'; });
+    var warnings = issues.filter(function(i) { return i.severity === 'Warning'; });
+
+    if (errors.length > 0) {
+      var msg = 'Compatibility issues found: ' + errors.slice(0, 3).map(function(i) { return i.reason; }).join(', ');
+      if (errors.length > 3) { msg += ', and ' + (errors.length - 3) + ' more'; }
+      showToast(msg, 'error');
+      return false;
+    } else if (warnings.length > 0) {
+      showToast('Some features may not render on GitHub (see Console)', 'info');
+      return true;
+    } else {
+      showToast('README is GitHub compatible', 'success');
+      return true;
+    }
+  }
+
+  function showCompatReport() {
+    var issues = window.__compatIssues || [];
+    if (issues.length === 0) {
+      openModal('Compatibility Report', '<p style="color:var(--accent-3);">All checks passed. No compatibility issues found.</p>');
+      return;
+    }
+    var html = '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+    html += '<thead><tr style="background:var(--bg-card);"><th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">Line</th><th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">Reason</th><th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">Severity</th><th style="padding:8px;text-align:left;border-bottom:1px solid var(--border);">Content</th></tr></thead>';
+    html += '<tbody>';
+    issues.forEach(function(i) {
+      var sevColor = i.severity === 'Error' ? '#FF5F57' : i.severity === 'Warning' ? '#FFBD2E' : '#28C840';
+      html += '<tr style="border-bottom:1px solid var(--border);">';
+      html += '<td style="padding:6px 8px;color:var(--text-muted);font-family:var(--font-mono);font-size:12px;">' + i.line + '</td>';
+      html += '<td style="padding:6px 8px;">' + i.reason + '</td>';
+      html += '<td style="padding:6px 8px;color:' + sevColor + ';font-weight:600;">' + i.severity + '</td>';
+      html += '<td style="padding:6px 8px;font-family:var(--font-mono);font-size:12px;color:var(--text-secondary);word-break:break-all;max-width:300px;"><code>' + i.text.replace(/</g, '&lt;') + '</code></td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    openModal('Compatibility Report', html);
+  }
+
+  function enhancePreviewDOM(container, templateName) {
+    container.classList.add('preview-' + templateName);
+  }
+
+  var STATS_DOMAINS = [
+    'github-readme-stats.vercel.app',
+    'github-readme-streak-stats.herokuapp.com',
+    'github-profile-summary-cards.vercel.app',
+    'github-profile-trophy.vercel.app',
+    'github-readme-activity-graph.vercel.app',
+    'komarev.com/ghpvc',
+    'capsule-render.vercel.app'
+  ];
+
+  function isStatsUrl(src) {
+    if (!src || typeof src !== 'string') return false;
+    for (var i = 0; i < STATS_DOMAINS.length; i++) {
+      if (src.indexOf(STATS_DOMAINS[i]) !== -1) return true;
+    }
+    return false;
+  }
+
+  function getCardType(src) {
+    if (src.indexOf('capsule-render.vercel.app') !== -1) {
+      return src.indexOf('section=footer') !== -1 ? 'capsule-footer' : 'capsule-header';
+    }
+    if (src.indexOf('top-langs') !== -1) return 'langs';
+    if (src.indexOf('streak-stats') !== -1) return 'streak';
+    if (src.indexOf('trophy') !== -1) return 'trophy';
+    if (src.indexOf('activity-graph') !== -1) return 'graph';
+    if (src.indexOf('profile-summary') !== -1) return 'summary';
+    if (src.indexOf('komarev') !== -1) return 'visitor';
+    return 'stats';
+  }
+
+  function getWidthClass(width) {
+    if (width === '48%') return 'local-card-half';
+    if (width === '95%' || width === '100%') return 'local-card-full';
+    return 'local-card-full';
+  }
+
+  function createLocalStatsCard(width) {
+    var wc = getWidthClass(width);
+    return '<div class="local-card local-stats-card ' + wc + '">' +
+      '<div class="local-card-title">📊 GitHub Stats</div>' +
+      '<div class="local-grid-2x2">' +
+        '<div class="local-grid-item"><div class="local-grid-num">12</div><div class="local-grid-label">Repos</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">1.2k</div><div class="local-grid-label">Commits</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">45</div><div class="local-grid-label">Stars</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">8</div><div class="local-grid-label">Forks</div></div>' +
+      '</div></div>';
+  }
+
+  function createLocalLangsCard(width) {
+    var wc = getWidthClass(width);
+    var langs = [
+      {name: 'JavaScript', pct: 40},
+      {name: 'Python', pct: 25},
+      {name: 'TypeScript', pct: 18},
+      {name: 'HTML/CSS', pct: 10},
+      {name: 'Other', pct: 7}
+    ];
+    var bars = '';
+    for (var i = 0; i < langs.length; i++) {
+      var l = langs[i];
+      bars += '<div class="local-lang-row"><span class="local-lang-name">' + l.name + '</span>' +
+        '<span class="local-lang-track"><span class="local-lang-fill" style="width:' + l.pct + '%;"></span></span>' +
+        '<span class="local-lang-pct">' + l.pct + '%</span></div>';
+    }
+    return '<div class="local-card local-langs-card ' + wc + '">' +
+      '<div class="local-card-title">💻 Top Languages</div>' + bars + '</div>';
+  }
+
+  function createLocalStreakCard(width) {
+    var wc = getWidthClass(width);
+    return '<div class="local-card local-streak-card ' + wc + '">' +
+      '<div class="local-card-title">🔥 GitHub Streak</div>' +
+      '<div class="local-grid-3x1">' +
+        '<div class="local-grid-item"><div class="local-grid-num">7</div><div class="local-grid-label">Current Streak</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">30</div><div class="local-grid-label">Longest</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">156</div><div class="local-grid-label">Total Days</div></div>' +
+      '</div></div>';
+  }
+
+  function createLocalTrophyCard(width) {
+    var wc = getWidthClass(width);
+    var items = '';
+    var icons = ['🏆', '🥇', '🥈', '🥉', '⭐', '🏅'];
+    for (var i = 0; i < icons.length; i++) {
+      items += '<div class="local-trophy-item">' + icons[i] + '</div>';
+    }
+    return '<div class="local-card local-trophy-card ' + wc + '">' +
+      '<div class="local-card-title">🏆 Trophies</div>' +
+      '<div class="local-trophy-grid">' + items + '</div></div>';
+  }
+
+  function createLocalGraphCard(width) {
+    var wc = getWidthClass(width);
+    var cells = '';
+    var pattern = [3,5,7,9,10,8,6,4,5,7,9,11,10,8,6,5,7,9,12,10,8,6,4,3,5,7];
+    for (var i = 0; i < pattern.length; i++) {
+      var level = pattern[i];
+      cells += '<span class="local-graph-cell" data-level="' + level + '"></span>';
+    }
+    return '<div class="local-card local-graph-card ' + wc + '">' +
+      '<div class="local-card-title">📈 Activity Graph</div>' +
+      '<div class="local-graph-cells">' + cells + '</div></div>';
+  }
+
+  function createLocalSummaryCard(width) {
+    var wc = getWidthClass(width);
+    return '<div class="local-card local-summary-card ' + wc + '">' +
+      '<div class="local-card-title">📋 Profile Summary</div>' +
+      '<div class="local-grid-2x2">' +
+        '<div class="local-grid-item"><div class="local-grid-num">156</div><div class="local-grid-label">Commits</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">45</div><div class="local-grid-label">PRs</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">12</div><div class="local-grid-label">Repos</div></div>' +
+        '<div class="local-grid-item"><div class="local-grid-num">8</div><div class="local-grid-label">Stars</div></div>' +
+      '</div></div>';
+  }
+
+  function createLocalCapsuleHeader() {
+    return '<div class="local-capsule local-capsule-header">' +
+      '<div class="capsule-decoration"></div>' +
+      '<div class="capsule-content">' +
+        '<div class="capsule-emoji">✨</div>' +
+        '<div class="capsule-title">Profile README</div>' +
+        '<div class="capsule-subtitle">Developer &middot; Designer &middot; Creator</div>' +
+      '</div></div>';
+  }
+
+  function createLocalCapsuleFooter() {
+    return '<div class="local-capsule local-capsule-footer">' +
+      '<div class="capsule-decoration"></div>' +
+      '<div class="capsule-content">' +
+        '<div class="capsule-text">Thanks for visiting ✨</div>' +
+      '</div></div>';
+  }
+
+  function replaceStatsImagesInHtml(html) {
+    return html.replace(/<img\b[^>]*?src\s*=\s*"([^"]*?)"[^>]*>/gi, function(match, src) {
+      if (!isStatsUrl(src)) return match;
+      var cardType = getCardType(src);
+      if (cardType === 'visitor') return '';
+      var widthMatch = match.match(/width\s*=\s*"([^"]*?)"/);
+      var width = widthMatch ? widthMatch[1] : '';
+      switch (cardType) {
+        case 'capsule-header': return createLocalCapsuleHeader();
+        case 'capsule-footer': return createLocalCapsuleFooter();
+        case 'langs': return createLocalLangsCard(width);
+        case 'streak': return createLocalStreakCard(width);
+        case 'trophy': return createLocalTrophyCard(width);
+        case 'graph': return createLocalGraphCard(width);
+        case 'summary': return createLocalSummaryCard(width);
+        default: return createLocalStatsCard(width);
+      }
+    });
+  }
+
+  function handleImageError(img) {
+    img.addEventListener('error', function() {
+      this.onerror = null;
+      var text = this.getAttribute('alt') || 'Preview image';
+      var div = document.createElement('div');
+      div.className = 'local-card local-card-full local-card-fallback';
+      div.textContent = '⚠️ ' + text + ' (unavailable)';
+      this.parentNode.replaceChild(div, this);
+    });
+  }
+
+  function renderPreview(md) {
+    if (md === lastRenderedMarkdown) return;
+    lastRenderedMarkdown = md;
+    const container = getEl('renderContainer');
+    container.innerHTML = '';
+    if (!md) {
+      container.innerHTML = '<div class="render-placeholder"><div class="placeholder-icon">📝</div><h3>No README Generated Yet</h3><p>Fill in your details and click <strong>Generate README</strong> to see the live preview.</p></div>';
+      return;
+    }
+    container.className = 'render-container github-style';
+    if (getEl('renderPane').querySelector('.mode-btn.active')?.dataset.mode === 'mobile') {
+      container.classList.add('mobile');
+    }
+    try {
+      var renderedHtml = marked.parse(md);
+      renderedHtml = replaceStatsImagesInHtml(renderedHtml);
+      var clean = DOMPurify.sanitize(renderedHtml, {
+        ADD_TAGS: ['img'],
+        ADD_ATTR: ['target', 'loading', 'referrerpolicy', 'decoding', 'width', 'height', 'style']
+      });
+      container.innerHTML = clean;
+      container.querySelectorAll('a').forEach(function(a) {
+        if (!a.getAttribute('target')) a.setAttribute('target', '_blank');
+      });
+      container.querySelectorAll('img').forEach(function(img) {
+        handleImageError(img);
+      });
+      enhancePreviewDOM(container, selectedTemplate);
+    } catch (error) {
+      console.warn('Preview rendering error:', error);
+      container.innerHTML = '<div>Preview could not be rendered.</div>';
+    }
+  }
+
+
+
+  let previewTimer;
+
+  function schedulePreviewUpdate(md) {
+    if (previewTimer) clearTimeout(previewTimer);
+    previewTimer = setTimeout(function() {
+      renderPreview(md);
+    }, 300);
+  }
+
+  function downloadREADME() {
+    if (!currentMarkdown) { showToast('Nothing to download. Generate a README first.', 'error'); return; }
+    const blob = new Blob([currentMarkdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'README.md';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('README.md downloaded!', 'success');
+  }
+
+  function copyMarkdown() {
+    if (!currentMarkdown) { showToast('Nothing to copy. Generate a README first.', 'error'); return; }
+    navigator.clipboard.writeText(currentMarkdown).then(() => {
+      showToast('Markdown copied to clipboard!', 'success');
+    }).catch(() => {
+      document.execCommand('copy');
+      showToast('Markdown copied!', 'success');
+    });
+  }
+
+  function saveHistory() {
+    if (!currentMarkdown) { showToast('Generate a README before saving.', 'error'); return; }
+    const data = getFormData();
+    const record = {
+      id: Date.now().toString(),
+      name: data.name,
+      username: data.username,
+      template: selectedTemplate,
+      date: new Date().toISOString(),
+      markdown: currentMarkdown,
+      config: JSON.stringify(data)
+    };
+    historyItems.unshift(record);
+    localStorage.setItem('readmeHistory', JSON.stringify(historyItems));
+    renderHistory();
+    showToast('Saved to history!', 'success');
+  }
+
+  function loadHistory() {
+    try {
+      const saved = localStorage.getItem('readmeHistory');
+      if (saved) historyItems = JSON.parse(saved);
+    } catch(e) { historyItems = []; }
+  }
+
+  function renderHistory() {
+    const grid = getEl('historyGrid');
+    const search = getEl('historySearch').value.toLowerCase();
+    const filter = getEl('historyFilter').value;
+
+    let items = historyItems;
+    if (search) items = items.filter(i => i.name.toLowerCase().includes(search) || i.username.toLowerCase().includes(search));
+    if (filter !== 'all') items = items.filter(i => i.template === filter);
+
+    if (items.length === 0) {
+      grid.innerHTML = '<div class="history-empty"><p>No saved READMEs yet. Generate one and save it!</p></div>';
+      return;
+    }
+
+    grid.innerHTML = items.map(item => `
+      <div class="history-card">
+        <h4>${escHtml(item.name)}</h4>
+        <div class="h-meta">@${escHtml(item.username)} · ${item.template} · ${new Date(item.date).toLocaleDateString()}</div>
+        <div class="h-actions">
+          <button class="btn btn-sm btn-ghost" onclick="window.loadHistoryItem('${item.id}')">View</button>
+          <button class="btn btn-sm btn-ghost" onclick="window.loadHistoryItem('${item.id}')">Edit</button>
+          <button class="btn btn-sm btn-ghost" onclick="window.dupHistoryItem('${item.id}')">Duplicate</button>
+          <button class="btn btn-sm btn-ghost" onclick="window.copyHistoryMd('${item.id}')">Copy</button>
+          <button class="btn btn-sm btn-danger" onclick="window.deleteHistoryItem('${item.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  window.loadHistoryItem = function(id) {
+    const item = historyItems.find(i => i.id === id);
+    if (!item) return;
+    currentMarkdown = item.markdown;
+    renderPreview(currentMarkdown);
+    try {
+      const config = JSON.parse(item.config);
+      if (config) Object.assign(config, {});
+    } catch(e) {}
+    showToast('Loaded from history.', 'info');
+    getEl('preview').scrollIntoView({ behavior: 'smooth' });
+  };
+
+  window.copyHistoryMd = function(id) {
+    const item = historyItems.find(i => i.id === id);
+    if (!item) return;
+    navigator.clipboard.writeText(item.markdown).then(() => showToast('Copied!', 'success'));
+  };
+
+  window.dupHistoryItem = function(id) {
+    const item = historyItems.find(i => i.id === id);
+    if (!item) return;
+    const dup = { ...item, id: Date.now().toString(), date: new Date().toISOString() };
+    historyItems.unshift(dup);
+    localStorage.setItem('readmeHistory', JSON.stringify(historyItems));
+    renderHistory();
+    showToast('Duplicated!', 'success');
+  };
+
+  window.deleteHistoryItem = function(id) {
+    historyItems = historyItems.filter(i => i.id !== id);
+    localStorage.setItem('readmeHistory', JSON.stringify(historyItems));
+    renderHistory();
+    showToast('Deleted.', 'info');
+  };
+
+  async function initPyodide() {
+    try {
+      if (!pyodide) {
+        showToast('Loading Python runtime...', 'info');
+        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/' });
+      }
+      const resp = await fetch('generator.py');
+      const code = await resp.text();
+      await pyodide.runPythonAsync(code);
+      pyodideReady = true;
+      showToast('Python engine ready!', 'success');
+    } catch (err) {
+      console.error('Pyodide init error:', err);
+      showToast('Failed to load Python engine. Using fallback.', 'error');
+      pyodideReady = true;
+    }
+  }
+
+  function applyTemplate(name) {
+    var config = TEMPLATE_CONFIGS[name] || TEMPLATE_CONFIGS.neumorphism;
+    var container = getEl('renderContainer');
+    ['preview-neumorphism','preview-glassmorphism','preview-skeuomorphism','preview-claymorphism','preview-auroraism','preview-frostedmorphism','preview-gradientmorphism','preview-layermorphism','preview-polymorphism','preview-metamorphism'].forEach(function(cls) {
+      container.classList.remove(cls);
+    });
+    container.classList.add('preview-' + name);
+  }
+
+  function selectTemplate(name) {
+    if (name === selectedTemplateId) return;
+    selectedTemplateId = name;
+    selectedTemplate = name;
+    lastRenderedMarkdown = '';
+    document.querySelectorAll('.template-card').forEach(function(c) { c.classList.remove('selected'); });
+    var card = document.querySelector('.template-card[data-template="' + name + '"]');
+    if (card) card.classList.add('selected');
+    var lines = TYPING_LINES[name] || TYPING_LINES.neumorphism;
+    getEl('typingLines').value = lines.join('\n');
+    applyTemplate(name);
+  }
+
+  function loadDemoData() {
+    getEl('name').value = DEMO_DATA.name;
+    getEl('username').value = DEMO_DATA.username;
+    getEl('title').value = DEMO_DATA.title;
+    getEl('bio').value = DEMO_DATA.bio;
+    getEl('location').value = DEMO_DATA.location;
+    getEl('email').value = DEMO_DATA.email;
+    getEl('education').value = DEMO_DATA.education;
+    getEl('college').value = DEMO_DATA.college;
+    getEl('aboutMe').value = DEMO_DATA.aboutMe;
+    getEl('learning').value = DEMO_DATA.learning;
+    getEl('funFact').value = DEMO_DATA.funFact;
+
+    document.querySelectorAll('.chip[data-value="HTML"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="CSS"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="JavaScript"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="Python"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="React"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="Tailwind CSS"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="MySQL"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="Git"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="GitHub"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="VS Code"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="FastAPI"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip[data-value="SQLite"]').forEach(c => c.classList.add('active'));
+
+    showToast('Demo data loaded!', 'success');
+  }
+
+  function clearForm() {
+    getEl('generator').querySelectorAll('input, textarea, select').forEach(el => {
+      if (el.type !== 'checkbox') el.value = '';
+    });
+    document.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.project-entry:not(:first-child)').forEach(e => e.remove());
+    document.querySelectorAll('.cert-entry:not(:first-child)').forEach(e => e.remove());
+    document.querySelectorAll('.achievement-entry:not(:first-child)').forEach(e => e.remove());
+    document.querySelector('.project-entry')?.querySelectorAll('input').forEach(i => i.value = '');
+    document.querySelector('.cert-entry')?.querySelectorAll('input').forEach(i => i.value = '');
+    document.querySelector('.achievement-entry')?.querySelectorAll('input').forEach(i => i.value = '');
+    document.querySelectorAll('.remove-project, .remove-cert, .remove-achievement').forEach(b => b.style.display = 'none');
+    currentMarkdown = '';
+    renderPreview('');
+    showToast('Form cleared.', 'info');
+  }
+
+  function generateSnakeWorkflow() {
+    const username = getEl('username').value.trim() || 'yourusername';
+    const workflow = [
+      'name: generate-snake',
+      '',
+      'on:',
+      '  schedule:',
+      '    - cron: "0 0 * * *"',
+      '  workflow_dispatch:',
+      '',
+      'jobs:',
+      '  build:',
+      '    runs-on: ubuntu-latest',
+      '    steps:',
+      '      - uses: actions/checkout@v3',
+      '      - uses: Platane/snk@v3',
+      '        with:',
+      '          github_user_name: ${{ github.repository_owner }}',
+      '          outputs: |',
+      '            dist/github-contribution-grid-snake.svg',
+      '            dist/github-contribution-grid-snake-dark.svg?palette=github-dark',
+      '      - uses: actions/upload-artifact@v3',
+      '        with:',
+      '          name: snake',
+      '          path: dist',
+      '      - uses: crazy-max/ghaction-github-pages@v3.1.0',
+      '        with:',
+      '          target_branch: output',
+      '          build_dir: dist',
+      '        env:',
+      '          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}',
+    ].join('\n');
+
+    const content = `<pre>${escHtml(workflow)}</pre>
+<p>Create the file <code>.github/workflows/snake.yml</code> in your profile repository (${escHtml(username)}/${escHtml(username)}) with the content above.</p>
+<button class="btn btn-sm btn-primary" onclick="window.copySnakeWorkflow()">Copy Workflow</button>
+<button class="btn btn-sm btn-ghost" onclick="window.downloadSnakeWorkflow()">Download</button>`;
+    window._snakeWorkflow = workflow;
+    openModal('🐍 Contribution Snake Setup', content);
+  }
+
+  window.copySnakeWorkflow = function() {
+    if (window._snakeWorkflow) {
+      navigator.clipboard.writeText(window._snakeWorkflow).then(() => {
+        showToast('Workflow copied!', 'success');
+        closeModal();
+      });
+    }
+  };
+
+  window.downloadSnakeWorkflow = function() {
+    if (!window._snakeWorkflow) return;
+    const blob = new Blob([window._snakeWorkflow], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'snake.yml';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('snake.yml downloaded!', 'success');
+    closeModal();
+  };
+
+  getEl('generateBtn')?.addEventListener('click', generateREADME);
+  getEl('copyBtn')?.addEventListener('click', copyMarkdown);
+  getEl('downloadBtn')?.addEventListener('click', downloadREADME);
+  getEl('saveHistoryBtn')?.addEventListener('click', saveHistory);
+  getEl('loadDemoBtn')?.addEventListener('click', loadDemoData);
+  getEl('clearFormBtn')?.addEventListener('click', clearForm);
+  getEl('snakeWorkflowBtn')?.addEventListener('click', generateSnakeWorkflow);
+
+  getEl('fullscreenBtn')?.addEventListener('click', function() {
+    getEl('preview')?.requestFullscreen?.() || getEl('preview')?.webkitRequestFullscreen?.();
+  });
+
+  getEl('themeToggle')?.addEventListener('click', function() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') !== 'light';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    getEl('themeIcon').textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const filter = this.dataset.filter;
+      document.querySelectorAll('.template-card').forEach(card => {
+        const tags = (card.dataset.filter || '').toLowerCase();
+        card.style.display = (filter === 'all' || tags.includes(filter)) ? '' : 'none';
+      });
+    });
+  });
+
+  getEl('templateGrid')?.addEventListener('click', function(e) {
+    var btn = e.target.closest('.select-template, .preview-template');
+    if (!btn) return;
+    var template = btn.dataset.template;
+    if (!template) return;
+    selectTemplate(template);
+    if (btn.classList.contains('preview-template')) {
+      getEl('preview')?.scrollIntoView({ behavior: 'smooth' });
+      if (currentMarkdown) renderPreview(currentMarkdown);
+    } else {
+      getEl('generator')?.scrollIntoView({ behavior: 'smooth' });
+      showToast('Template "' + template + '" selected!', 'success');
+    }
+  });
+
+  document.querySelectorAll('.form-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.form-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.form-tab-content').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      getEl(`tab-${this.dataset.tab}`)?.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.mode-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const container = getEl('renderContainer');
+      container.classList.toggle('mobile', this.dataset.mode === 'mobile');
+    });
+  });
+
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', function() {
+      this.classList.toggle('active');
+    });
+  });
+
+  document.querySelectorAll('.custom-skill-input').forEach(input => {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const val = this.value.trim();
+        if (!val) return;
+        const chips = this.parentElement.querySelector('.skill-chips');
+        const span = document.createElement('span');
+        span.className = 'chip active custom-chip';
+        span.dataset.value = val;
+        span.textContent = val;
+        span.addEventListener('click', function() { this.remove(); });
+        chips.appendChild(span);
+        this.value = '';
+      }
+    });
+  });
+
+  document.querySelectorAll('.project-entry').forEach((entry, idx) => {
+    const btn = entry.querySelector('.remove-project');
+    if (idx > 0) btn.style.display = 'inline-flex';
+    btn?.addEventListener('click', function() { entry.remove(); });
+  });
+
+  getEl('addProjectBtn')?.addEventListener('click', function() {
+    const template = document.querySelector('.project-entry')?.cloneNode(true);
+    if (!template) return;
+    template.querySelectorAll('input').forEach(i => i.value = '');
+    const btn = template.querySelector('.remove-project');
+    if (btn) { btn.style.display = 'inline-flex'; btn.addEventListener('click', function() { template.remove(); }); }
+    getEl('projectsContainer')?.appendChild(template);
+  });
+
+  getEl('addCertBtn')?.addEventListener('click', function() {
+    const template = document.querySelector('.cert-entry')?.cloneNode(true);
+    if (!template) return;
+    template.querySelectorAll('input').forEach(i => i.value = '');
+    const btn = template.querySelector('.remove-cert');
+    if (btn) { btn.style.display = 'inline-flex'; btn.addEventListener('click', function() { template.remove(); }); }
+    getEl('certsContainer')?.appendChild(template);
+  });
+
+  getEl('addAchievementBtn')?.addEventListener('click', function() {
+    const template = document.querySelector('.achievement-entry')?.cloneNode(true);
+    if (!template) return;
+    template.querySelectorAll('input').forEach(i => i.value = '');
+    const btn = template.querySelector('.remove-achievement');
+    if (btn) { btn.style.display = 'inline-flex'; btn.addEventListener('click', function() { template.remove(); }); }
+    getEl('achievementsContainer')?.appendChild(template);
+  });
+
+  getEl('historySearch')?.addEventListener('input', renderHistory);
+  getEl('historyFilter')?.addEventListener('change', renderHistory);
+
+  const heroLines = ['Generate beautiful GitHub Profile READMEs', '10 unique animated templates', 'Live preview with Markdown & Python', 'Powered by Python in the browser'];
+  let heroIdx = 0;
+  function typeHero() {
+    const el = getEl('heroTyping');
+    el.textContent = heroLines[heroIdx];
+    heroIdx = (heroIdx + 1) % heroLines.length;
+  }
+  typeHero();
+  setInterval(typeHero, 3500);
+
+  (function init() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+    if (savedTheme === 'light') getEl('themeIcon').textContent = '☀️';
+
+    loadHistory();
+    renderHistory();
+
+    selectTemplate('neumorphism');
+
+    const img = new Image();
+    img.onload = () => {};
+    img.src = 'assets/logo.svg';
+
+    initPyodide();
+  })();
+
+})();
