@@ -3,7 +3,7 @@ import { GlassCard, GlassButton, GlassBadge } from '@/components/ui/glass'
 import { fadeUp, staggerContainer, hoverLift } from '@/features/animations/variants'
 import { TEMPLATES } from '@/features/templates/templates.config'
 import { Link } from 'react-router-dom'
-import { Sparkles, Zap, Code2, Eye } from 'lucide-react'
+import { Sparkles, Zap, Code as Code2, Eye } from 'lucide-react'
 
 export default function LandingPage() {
   return (
