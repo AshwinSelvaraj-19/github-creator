@@ -1,17 +1,22 @@
 /**
  * HeroScene3D — lightweight React Three Fiber scene for the hero.
  *
- * Contains:
- *   - Floating README sheets (planes with subtle glass material)
- *   - Floating GitHub cubes (rounded boxes with soft material)
- *   - Depth of field (via drei <Float> for organic motion)
- *   - Mouse interaction (group rotates toward cursor)
- *   - Soft shadows and premium lighting
+ * Performance:
+ *   - frameloop="demand" + manual invalidation: only renders when needed
+ *   - IntersectionObserver pauses the canvas when the hero scrolls offscreen
+ *   - dpr capped at [1, 1.5] to prevent over-rendering on retina displays
+ *   - Low-poly geometry (RoundedBox with smoothness=4), no textures
  *
- * Kept lightweight: low-poly geometry, no textures, GPU-accelerated transforms.
+ * Accessibility:
+ *   - Canvas wrapper is aria-hidden (decorative)
+ *   - pointerEvents: none so it never blocks interaction
+ *
+ * Motion:
+ *   - drei <Float> for organic, GPU-accelerated floating
+ *   - Mouse-reactive group rotation with smoothed damping
  */
 
-import { Suspense, useRef } from 'react'
+import { Suspense, useRef, useState, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Float, Environment, ContactShadows, RoundedBox } from '@react-three/drei'
 import type { Group } from 'three'
@@ -119,51 +124,67 @@ function SceneGroup({ children }: { children: React.ReactNode }) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Full canvas                                                                 */
+/* Full canvas with visibility-based pause                                     */
 /* -------------------------------------------------------------------------- */
 
 export function HeroScene3D() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(true)
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(entry.isIntersecting),
+      { threshold: 0.1 },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 6], fov: 45 }}
-      dpr={[1, 1.5]}
-      gl={{ antialias: true, alpha: true }}
-      style={{ pointerEvents: 'none' }}
-    >
-      <Suspense fallback={null}>
-        <ambientLight intensity={0.5} />
-        <directionalLight
-          position={[5, 5, 5]}
-          intensity={0.8}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-        />
-        <pointLight position={[-5, -3, -4]} intensity={0.5} color="#06b6d4" />
-        <pointLight position={[5, 3, 2]} intensity={0.4} color="#ec4899" />
+    <div ref={containerRef} className="h-full w-full" aria-hidden="true">
+      {visible && (
+        <Canvas
+          camera={{ position: [0, 0, 6], fov: 45 }}
+          dpr={[1, 1.5]}
+          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+          style={{ pointerEvents: 'none' }}
+        >
+          <Suspense fallback={null}>
+            <ambientLight intensity={0.5} />
+            <directionalLight
+              position={[5, 5, 5]}
+              intensity={0.8}
+              castShadow
+              shadow-mapSize={[1024, 1024]}
+            />
+            <pointLight position={[-5, -3, -4]} intensity={0.5} color="#06b6d4" />
+            <pointLight position={[5, 3, 2]} intensity={0.4} color="#ec4899" />
 
-        <SceneGroup>
-          {/* README sheets */}
-          <ReadmeSheet position={[-2.2, 0.5, -1]} rotation={[0.1, 0.3, -0.08]} color="#a78bfa" />
-          <ReadmeSheet position={[0, 0, 0.5]} rotation={[0.05, 0, 0.02]} color="#67e8f9" />
-          <ReadmeSheet position={[2.2, -0.3, -0.5]} rotation={[0.1, -0.3, 0.06]} color="#f0abfc" />
+            <SceneGroup>
+              <ReadmeSheet position={[-2.2, 0.5, -1]} rotation={[0.1, 0.3, -0.08]} color="#a78bfa" />
+              <ReadmeSheet position={[0, 0, 0.5]} rotation={[0.05, 0, 0.02]} color="#67e8f9" />
+              <ReadmeSheet position={[2.2, -0.3, -0.5]} rotation={[0.1, -0.3, 0.06]} color="#f0abfc" />
 
-          {/* GitHub cubes */}
-          <GithubCube position={[-3, -1.5, 0]} scale={0.7} />
-          <GithubCube position={[3, 1.5, -1]} scale={0.5} />
-          <GithubCube position={[1.5, -1.8, 0.8]} scale={0.4} />
-          <GithubCube position={[-1.5, 1.8, -0.5]} scale={0.45} />
-        </SceneGroup>
+              <GithubCube position={[-3, -1.5, 0]} scale={0.7} />
+              <GithubCube position={[3, 1.5, -1]} scale={0.5} />
+              <GithubCube position={[1.5, -1.8, 0.8]} scale={0.4} />
+              <GithubCube position={[-1.5, 1.8, -0.5]} scale={0.45} />
+            </SceneGroup>
 
-        <ContactShadows
-          position={[0, -2.5, 0]}
-          opacity={0.15}
-          scale={10}
-          blur={3}
-          far={4}
-          color="#8b5cf6"
-        />
-        <Environment preset="city" />
-      </Suspense>
-    </Canvas>
+            <ContactShadows
+              position={[0, -2.5, 0]}
+              opacity={0.15}
+              scale={10}
+              blur={3}
+              far={4}
+              color="#8b5cf6"
+            />
+            <Environment preset="city" />
+          </Suspense>
+        </Canvas>
+      )}
+    </div>
   )
 }

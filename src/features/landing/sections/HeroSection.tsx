@@ -1,14 +1,19 @@
 /**
  * HeroSection — the landing page hero.
  *
- * Layers:
- *   - 3D scene canvas (floating README sheets + GitHub cubes)
- *   - Huge animated headline with gradient text
- *   - Typing animation subtitle
- *   - Glass CTA buttons
- *   - Floating stat badges
+ * Accessibility:
+ *   - Semantic <section> with aria-label
+ *   - h1 is a single heading (no <br> splitting)
+ *   - 3D canvas is aria-hidden (decorative)
+ *   - CTAs are proper links with descriptive aria-labels
+ *   - Typing region has aria-live="polite" for screen readers
+ *   - Scroll indicator is aria-hidden (decorative)
  *
- * Everything animates in with staggered fade-up on mount.
+ * Motion:
+ *   - Staggered fade-up entrance with premium easing
+ *   - Spring-based hover on CTA buttons
+ *   - Typing animation respects prefers-reduced-motion
+ *   - Scroll indicator uses a gentle infinite loop
  */
 
 import { motion } from 'framer-motion'
@@ -17,7 +22,7 @@ import { Link } from 'react-router-dom'
 import { GlassBadge } from '@/components/ui'
 import { Icon } from '@/shared/iconRegistry'
 import { useTyping } from '@/hooks/useTyping'
-import { fadeUp, staggerContainer } from '@/animations/variants'
+import { fadeUp, staggerContainer, hoverButton } from '@/animations/variants'
 
 const HeroScene3D = lazy(() =>
   import('@/three/HeroScene3D').then((m) => ({ default: m.HeroScene3D })),
@@ -30,19 +35,27 @@ const TYPING_PHRASES = [
   'Copy-ready in seconds.',
 ]
 
+const STATS = [
+  { value: '10', label: 'Templates' },
+  { value: '100%', label: 'Open Source' },
+  { value: '0', label: 'Sign-up Required' },
+]
+
 export function HeroSection() {
   const { text, cursor } = useTyping(TYPING_PHRASES)
 
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6">
-      {/* 3D scene — absolute, behind content */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-90">
+    <section
+      aria-label="Hero"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6"
+    >
+      {/* 3D scene — decorative, hidden from screen readers */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-90" aria-hidden="true">
         <Suspense fallback={null}>
           <HeroScene3D />
         </Suspense>
       </div>
 
-      {/* Content */}
       <motion.div
         variants={staggerContainer(0.12, 0.15)}
         initial="hidden"
@@ -57,44 +70,43 @@ export function HeroSection() {
           </GlassBadge>
         </motion.div>
 
-        {/* Headline */}
+        {/* Headline — single h1, no <br> */}
         <motion.h1
           variants={fadeUp}
           className="text-6xl font-extrabold leading-[1.02] tracking-tight md:text-8xl lg:text-[7.5rem]"
         >
-          <span className="text-gradient-animated glow-text">Design Your</span>
-          <br />
-          <span className="text-gradient-animated glow-text">GitHub Identity</span>
+          <span className="text-gradient-animated glow-text">Design Your GitHub Identity</span>
         </motion.h1>
 
-        {/* Typing subtitle */}
+        {/* Typing subtitle — polite live region for screen readers */}
         <motion.div
           variants={fadeUp}
           className="mt-8 flex h-8 items-center font-mono text-lg text-[var(--color-ink-secondary)] md:text-xl"
+          aria-live="polite"
+          aria-atomic="true"
         >
           <span>{text}</span>
           <span
             className="ml-0.5 inline-block w-0.5 bg-[#8b5cf6]"
             style={{ height: '1.1em', opacity: cursor ? 1 : 0 }}
+            aria-hidden="true"
           />
         </motion.div>
 
         {/* CTAs */}
         <motion.div variants={fadeUp} className="mt-12 flex flex-wrap justify-center gap-4">
-          <Link to="/builder">
+          <Link to="/builder" aria-label="Start building your README">
             <motion.button
-              whileHover={{ y: -4, scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              {...hoverButton}
               className="gradient-border-animated inline-flex items-center gap-2.5 rounded-[var(--radius-sm)] px-8 py-4 text-base font-semibold text-[var(--color-ink-primary)] shadow-[var(--shadow-glow-purple)]"
             >
               <Icon name="sparkles" size={20} />
               Start Building
             </motion.button>
           </Link>
-          <Link to="/templates">
+          <Link to="/templates" aria-label="Explore template gallery">
             <motion.button
-              whileHover={{ y: -4, scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+              {...hoverButton}
               className="glass inline-flex items-center gap-2.5 rounded-[var(--radius-sm)] px-8 py-4 text-base font-semibold text-[var(--color-ink-primary)]"
             >
               <Icon name="eye" size={20} />
@@ -105,11 +117,7 @@ export function HeroSection() {
 
         {/* Stats row */}
         <motion.div variants={fadeUp} className="mt-16 flex flex-wrap items-center justify-center gap-8 text-center">
-          {[
-            { value: '10', label: 'Templates' },
-            { value: '100%', label: 'Open Source' },
-            { value: '0', label: 'Sign-up Required' },
-          ].map((stat) => (
+          {STATS.map((stat) => (
             <div key={stat.label} className="flex flex-col items-center">
               <span className="text-3xl font-bold text-gradient">{stat.value}</span>
               <span className="mt-1 text-sm text-[var(--color-ink-muted)]">{stat.label}</span>
@@ -118,12 +126,13 @@ export function HeroSection() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator */}
+      {/* Scroll indicator — decorative */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 2, duration: 1 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        aria-hidden="true"
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}

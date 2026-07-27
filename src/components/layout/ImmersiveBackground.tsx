@@ -10,10 +10,19 @@
  *   6. Mouse parallax (all layers offset by smoothed mouse position)
  *   7. Soft vignette overlay
  *
- * Everything is GPU-accelerated (transform/opacity only) and runs at 60 FPS.
+ * Performance:
+ *   - All layers use transform/opacity only (GPU-accelerated)
+ *   - Particle count is capped and density is viewport-based
+ *   - Parallax uses spring smoothing (no per-frame React state)
+ *   - will-change hints on animated layers
+ *
+ * Accessibility:
+ *   - Entire background is aria-hidden (decorative)
+ *   - prefers-reduced-motion: animations are reduced to near-instant
+ *     via the global CSS media query
  */
 
-import { memo, useMemo, useEffect } from 'react'
+import { memo, useMemo, useEffect, useRef } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import Particles, { initParticlesEngine } from '@tsparticles/react'
 import { loadSlim } from '@tsparticles/slim'
@@ -41,20 +50,20 @@ const ParticlesLayer = memo(function ParticlesLayer() {
     () => ({
       fpsLimit: 60,
       particles: {
-        number: { value: 40, density: { enable: true, width: 1920, height: 1080 } },
+        number: { value: 35, density: { enable: true, width: 1920, height: 1080 } },
         color: { value: ['#8b5cf6', '#06b6d4', '#ec4899'] },
-        opacity: { value: { min: 0.1, max: 0.3 } },
+        opacity: { value: { min: 0.1, max: 0.25 } },
         size: { value: { min: 1, max: 3 } },
         links: {
           enable: true,
           distance: 150,
           color: '#8b5cf6',
-          opacity: 0.12,
+          opacity: 0.1,
           width: 1,
         },
         move: {
           enable: true,
-          speed: 0.4,
+          speed: 0.35,
           direction: 'none',
           random: true,
           straight: false,
@@ -80,11 +89,11 @@ const ParticlesLayer = memo(function ParticlesLayer() {
 /* -------------------------------------------------------------------------- */
 
 const BLOBS = [
-  { color: 'rgba(139, 92, 246, 0.30)', size: 520, x: '-8%', y: '-5%', dur: 18, delay: 0 },
-  { color: 'rgba(6, 182, 212, 0.25)', size: 460, x: '72%', y: '3%', dur: 22, delay: 2 },
-  { color: 'rgba(236, 72, 153, 0.22)', size: 400, x: '58%', y: '58%', dur: 20, delay: 4 },
-  { color: 'rgba(249, 115, 22, 0.18)', size: 360, x: '3%', y: '62%', dur: 24, delay: 1 },
-  { color: 'rgba(59, 130, 246, 0.15)', size: 300, x: '40%', y: '30%', dur: 26, delay: 3 },
+  { color: 'rgba(139, 92, 246, 0.28)', size: 520, x: '-8%', y: '-5%', dur: 18, delay: 0 },
+  { color: 'rgba(6, 182, 212, 0.22)', size: 460, x: '72%', y: '3%', dur: 22, delay: 2 },
+  { color: 'rgba(236, 72, 153, 0.20)', size: 400, x: '58%', y: '58%', dur: 20, delay: 4 },
+  { color: 'rgba(249, 115, 22, 0.16)', size: 360, x: '3%', y: '62%', dur: 24, delay: 1 },
+  { color: 'rgba(59, 130, 246, 0.14)', size: 300, x: '40%', y: '30%', dur: 26, delay: 3 },
 ]
 
 const BlobsLayer = memo(function BlobsLayer() {
@@ -93,7 +102,7 @@ const BlobsLayer = memo(function BlobsLayer() {
       {BLOBS.map((b, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full blur-[100px]"
+          className="absolute rounded-full blur-[100px] will-change-transform"
           style={{
             width: b.size,
             height: b.size,
@@ -134,12 +143,12 @@ const FLOATING_ICONS = [
 
 const FloatingIconsLayer = memo(function FloatingIconsLayer() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       {FLOATING_ICONS.map((icon, i) => (
         <motion.div
           key={i}
-          className="absolute text-[var(--color-ink-secondary)]"
-          style={{ left: icon.x, top: icon.y, opacity: 0.08 }}
+          className="absolute text-[var(--color-ink-secondary)] will-change-transform"
+          style={{ left: icon.x, top: icon.y, opacity: 0.07 }}
           animate={{
             y: [0, -24, 0],
             rotate: [0, 8, -8, 0],
@@ -171,12 +180,12 @@ const FLOATING_CARDS = [
 
 const FloatingCardsLayer = memo(function FloatingCardsLayer() {
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       {FLOATING_CARDS.map((card, i) => (
         <motion.div
           key={i}
-          className="absolute w-44 rounded-2xl glass glass-reflect p-4"
-          style={{ left: card.x, top: card.y, rotate: card.rotate, opacity: 0.5 }}
+          className="absolute w-44 rounded-[var(--radius-md)] glass glass-reflect p-4 will-change-transform"
+          style={{ left: card.x, top: card.y, rotate: card.rotate, opacity: 0.45 }}
           animate={{
             y: [0, -18, 0],
             rotate: [card.rotate, card.rotate + 3, card.rotate],
@@ -193,8 +202,8 @@ const FloatingCardsLayer = memo(function FloatingCardsLayer() {
           <div className="mb-1.5 h-1.5 w-28 rounded-full bg-[var(--color-border-strong)]" />
           <div className="mb-3 h-1.5 w-24 rounded-full bg-[var(--color-border-strong)]" />
           <div className="flex gap-1.5">
-            <div className="h-4 w-12 rounded-md bg-[#8b5cf6]/20" />
-            <div className="h-4 w-10 rounded-md bg-[#06b6d4]/20" />
+            <div className="h-4 w-12 rounded-[var(--radius-xs)] bg-[#8b5cf6]/20" />
+            <div className="h-4 w-10 rounded-[var(--radius-xs)] bg-[#06b6d4]/20" />
           </div>
         </motion.div>
       ))}
@@ -219,6 +228,8 @@ export function ImmersiveBackground() {
   const cardX = useTransform(springX, [-1, 1], [-30, 30])
   const cardY = useTransform(springY, [-1, 1], [-30, 30])
 
+  const containerRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       mouseX.set((e.clientX / window.innerWidth - 0.5) * 2)
@@ -229,7 +240,7 @@ export function ImmersiveBackground() {
   }, [mouseX, mouseY])
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
       <div className="absolute inset-0 mesh-gradient" />
       <ParticlesLayer />
       <motion.div style={{ x: blobX, y: blobY }} className="absolute inset-0">

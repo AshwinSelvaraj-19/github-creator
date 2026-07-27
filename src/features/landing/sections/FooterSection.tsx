@@ -1,18 +1,22 @@
 /**
  * FooterSection — glass footer with animated divider and floating socials.
  *
- * Features:
- *   - Animated gradient divider line at top
- *   - Glass background
- *   - Floating social icons with hover lift + glow
- *   - Logo + tagline
- *   - Link columns
+ * Accessibility:
+ *   - Semantic <footer> with aria-label
+ *   - Social links have descriptive aria-labels
+ *   - Navigation links are keyboard-focusable with visible focus rings
+ *   - Heading hierarchy is correct (h2 > h4)
+ *
+ * Motion:
+ *   - Staggered fade-up on scroll-in
+ *   - Animated gradient divider sweeps across the top
+ *   - Spring-based hover lift on social icons
  */
 
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Icon, type IconName } from '@/shared/iconRegistry'
-import { fadeUp, staggerContainer } from '@/animations/variants'
+import { fadeUp, staggerContainer, hoverSocial } from '@/animations/variants'
 
 const SOCIALS: { icon: IconName; href: string; label: string }[] = [
   { icon: 'github', href: 'https://github.com', label: 'GitHub' },
@@ -36,9 +40,10 @@ export function FooterSection() {
       whileInView="visible"
       viewport={{ once: true }}
       className="relative mt-32"
+      aria-label="Footer"
     >
       {/* Animated gradient divider */}
-      <div className="relative mx-auto max-w-7xl px-6">
+      <div className="relative mx-auto max-w-7xl px-6" aria-hidden="true">
         <div className="relative h-px overflow-hidden">
           <div className="absolute inset-0 bg-[var(--color-border-strong)]" />
           <motion.div
@@ -55,8 +60,8 @@ export function FooterSection() {
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {/* Brand */}
             <motion.div variants={fadeUp}>
-              <Link to="/" className="flex items-center gap-2.5">
-                <img src="/assets/logo.svg" alt="Logo" className="h-9 w-9 rounded-lg" />
+              <Link to="/" className="flex items-center gap-2.5 rounded-lg" aria-label="README Forge home">
+                <img src="/assets/logo.svg" alt="" className="h-9 w-9 rounded-lg" />
                 <span className="text-xl font-bold text-gradient">README Forge</span>
               </Link>
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-[var(--color-ink-secondary)]">
@@ -66,18 +71,18 @@ export function FooterSection() {
             </motion.div>
 
             {/* Links */}
-            <motion.div variants={fadeUp} className="flex flex-col gap-3">
+            <motion.nav variants={fadeUp} className="flex flex-col gap-3" aria-label="Footer navigation">
               <h4 className="text-sm font-bold text-[var(--color-ink-primary)]">Navigate</h4>
               {LINKS.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="text-sm text-[var(--color-ink-secondary)] transition-colors hover:text-[var(--color-ink-primary)]"
+                  className="rounded-sm text-sm text-[var(--color-ink-secondary)] transition-colors hover:text-[var(--color-ink-primary)]"
                 >
                   {link.label}
                 </Link>
               ))}
-            </motion.div>
+            </motion.nav>
 
             {/* Socials */}
             <motion.div variants={fadeUp}>
@@ -89,10 +94,9 @@ export function FooterSection() {
                     href={social.href}
                     target="_blank"
                     rel="noreferrer"
-                    whileHover={{ y: -6, scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
+                    {...hoverSocial}
                     className="glass flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-colors hover:text-[#8b5cf6]"
-                    aria-label={social.label}
+                    aria-label={`Visit us on ${social.label}`}
                   >
                     <Icon name={social.icon} size={18} />
                   </motion.a>
@@ -107,7 +111,7 @@ export function FooterSection() {
             className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border-strong)] pt-8 sm:flex-row"
           >
             <p className="text-sm text-[var(--color-ink-muted)]">
-              Built with React, Three.js & Pyodide. Open source.
+              Built with React, Three.js &amp; Pyodide. Open source.
             </p>
             <p className="text-sm text-[var(--color-ink-muted)]">
               © {new Date().getFullYear()} README Forge

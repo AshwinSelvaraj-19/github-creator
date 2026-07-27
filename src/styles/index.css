@@ -77,6 +77,18 @@
     background: rgba(139, 92, 246, 0.5);
     background-clip: content-box;
   }
+
+  /* Visible focus ring for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid var(--color-purple);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Remove focus ring for mouse clicks */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
 }
 
 @layer utilities {
@@ -238,6 +250,13 @@
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  .will-change-transform {
+    will-change: transform;
+  }
+  .will-change-opacity {
+    will-change: opacity;
+  }
 }
 
 @keyframes gradient-shift {
@@ -258,12 +277,14 @@
   75% { background-position: 10% 10%, 90% 10%, 60% 90%, 90% 80%; }
 }
 
-@keyframes float-y {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
-}
-
-@keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.8; }
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

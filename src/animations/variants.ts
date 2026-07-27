@@ -6,6 +6,9 @@
  * variant the app uses, grouped by category. Components reference these by import
  * — never define `transition`, `variants`, or `whileHover` objects inline.
  *
+ * All easing uses a premium custom cubic-bezier curve ([0.16, 1, 0.3, 1]) that
+ * feels smooth and expensive — never the browser default.
+ *
  * Categories:
  *   - hover:    micro-interactions for buttons, cards, icons
  *   - fade:     opacity-based entrance/exit
@@ -25,17 +28,23 @@ const EASE_OUT = ease.out
 const EASE_INOUT = ease.inOut
 
 /* -------------------------------------------------------------------------- */
-/* Hover                                                                      */
+/* Hover — spring-based micro-interactions                                    */
 /* -------------------------------------------------------------------------- */
 
 export const hoverLift = {
-  whileHover: { y: -6, transition: { duration: duration.fast, ease: EASE_OUT } },
-  whileTap: { y: -2, scale: 0.98 },
+  whileHover: {
+    y: -6,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 25 },
+  },
+  whileTap: { y: -2, scale: 0.98, transition: { duration: duration.instant } },
 }
 
 export const hoverLiftSm = {
-  whileHover: { y: -3, transition: { duration: duration.fast, ease: EASE_OUT } },
-  whileTap: { scale: 0.97 },
+  whileHover: {
+    y: -3,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 25 },
+  },
+  whileTap: { scale: 0.97, transition: { duration: duration.instant } },
 }
 
 export const hoverGlow = {
@@ -46,8 +55,46 @@ export const hoverGlow = {
 }
 
 export const hoverScale = {
-  whileHover: { scale: 1.05, transition: { duration: duration.fast, ease: EASE_OUT } },
-  whileTap: { scale: 0.95 },
+  whileHover: {
+    scale: 1.05,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 25 },
+  },
+  whileTap: { scale: 0.95, transition: { duration: duration.instant } },
+}
+
+export const hoverCard = {
+  whileHover: {
+    y: -8,
+    transition: { type: 'spring' as const, stiffness: 350, damping: 30 },
+  },
+  whileTap: { y: -2, scale: 0.98, transition: { duration: duration.instant } },
+}
+
+export const hoverIcon = {
+  whileHover: {
+    scale: 1.1,
+    rotate: 5,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 20 },
+  },
+  whileTap: { scale: 0.95, transition: { duration: duration.instant } },
+}
+
+export const hoverButton = {
+  whileHover: {
+    y: -4,
+    scale: 1.03,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 25 },
+  },
+  whileTap: { scale: 0.97, transition: { duration: duration.instant } },
+}
+
+export const hoverSocial = {
+  whileHover: {
+    y: -6,
+    scale: 1.1,
+    transition: { type: 'spring' as const, stiffness: 400, damping: 20 },
+  },
+  whileTap: { scale: 0.95, transition: { duration: duration.instant } },
 }
 
 /* -------------------------------------------------------------------------- */
@@ -187,7 +234,7 @@ export const modalDialog: Variants = {
 
 export const buttonPress: Variants = {
   rest: { scale: 1 },
-  hover: { scale: 1.03, transition: { duration: duration.fast, ease: EASE_OUT } },
+  hover: { scale: 1.03, transition: { type: 'spring', stiffness: 400, damping: 25 } },
   pressed: { scale: 0.96, transition: { duration: duration.instant } },
 }
 
@@ -277,6 +324,10 @@ export const animations = {
   hoverLiftSm,
   hoverGlow,
   hoverScale,
+  hoverCard,
+  hoverIcon,
+  hoverButton,
+  hoverSocial,
   fadeIn,
   fadeUp,
   fadeDown,

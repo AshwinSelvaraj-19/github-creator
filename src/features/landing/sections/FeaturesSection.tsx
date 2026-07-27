@@ -1,16 +1,25 @@
 /**
  * FeaturesSection — premium feature cards with glow and gradient borders.
  *
- * Each card:
- *   - Glass background with animated gradient border
- *   - Lifts on hover with glow shadow
- *   - Animated icon in a gradient circle
- *   - Staggered scroll-in entrance
+ * Bug fix: the original used `group-hover:${feature.glow}` which Tailwind
+ * cannot detect at build time (dynamic class). Replaced with a static
+ * glow class applied on hover via CSS variable.
+ *
+ * Accessibility:
+ *   - Semantic <section> with aria-label
+ *   - Feature cards in a proper list
+ *   - Each card has a heading
+ *
+ * Motion:
+ *   - Staggered fade-up on scroll-in
+ *   - Spring-based hover lift
+ *   - Animated gradient border (CSS)
+ *   - Icon spring-scale on hover
  */
 
 import { motion } from 'framer-motion'
 import { Icon, type IconName } from '@/shared/iconRegistry'
-import { fadeUp, staggerContainer } from '@/animations/variants'
+import { fadeUp, staggerContainer, hoverCard, hoverIcon } from '@/animations/variants'
 
 interface Feature {
   icon: IconName
@@ -24,37 +33,37 @@ const FEATURES: Feature[] = [
     icon: 'sparkles',
     title: '10 Premium Templates',
     desc: 'From neumorphism to auroraism — each handcrafted with distinct visual identity and widget styles.',
-    glow: 'shadow-[0_20px_60px_rgba(139,92,246,0.2)]',
+    glow: '139, 92, 246',
   },
   {
     icon: 'eye',
     title: 'Live Preview',
     desc: 'See your README update in real time as you type. No guessing, no refreshing, no surprises.',
-    glow: 'shadow-[0_20px_60px_rgba(6,182,212,0.2)]',
+    glow: '6, 182, 212',
   },
   {
     icon: 'code',
     title: 'Python Powered',
     desc: 'The generator runs entirely in your browser via Pyodide. No server, no API, no data leaves your machine.',
-    glow: 'shadow-[0_20px_60px_rgba(236,72,153,0.2)]',
+    glow: '236, 72, 153',
   },
   {
     icon: 'zap',
     title: 'Instant Export',
     desc: 'One click to copy markdown or download README.md. Paste directly into your GitHub profile.',
-    glow: 'shadow-[0_20px_60px_rgba(249,115,22,0.2)]',
+    glow: '249, 115, 22',
   },
   {
     icon: 'palette',
     title: 'Fully Customizable',
     desc: 'Accent colors, typing animations, section toggles, social links, projects — control every detail.',
-    glow: 'shadow-[0_20px_60px_rgba(139,92,246,0.2)]',
+    glow: '139, 92, 246',
   },
   {
     icon: 'history',
     title: 'Auto-Save History',
     desc: 'Your work is saved locally. Browse past generations and restore any version instantly.',
-    glow: 'shadow-[0_20px_60px_rgba(6,182,212,0.2)]',
+    glow: '6, 182, 212',
   },
 ]
 
@@ -66,6 +75,7 @@ export function FeaturesSection() {
       whileInView="visible"
       viewport={{ once: true, margin: '-100px' }}
       className="mx-auto max-w-6xl px-6 py-32"
+      aria-label="Features"
     >
       <motion.div variants={fadeUp} className="mb-20 text-center">
         <h2 className="text-4xl font-bold text-gradient md:text-5xl">
@@ -76,21 +86,19 @@ export function FeaturesSection() {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid list-none grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map((feature) => (
-          <motion.div
-            key={feature.title}
-            variants={fadeUp}
-            whileHover={{ y: -8 }}
-            className="group relative"
-          >
-            <div className={`gradient-border-animated h-full rounded-[var(--radius-lg)] p-8 transition-shadow duration-500 group-hover:${feature.glow}`}>
+          <motion.li key={feature.title} variants={fadeUp} {...hoverCard} className="group relative">
+            <div
+              className="gradient-border-animated h-full rounded-[var(--radius-lg)] p-8 transition-shadow duration-500 group-hover:shadow-[0_20px_60px_rgba(var(--feature-glow),0.2)]"
+              style={{ ['--feature-glow' as string]: feature.glow }}
+            >
               {/* Icon */}
               <motion.div
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#8b5cf6]/20 to-[#06b6d4]/20"
+                {...hoverIcon}
+                className="mb-6 flex h-14 w-14 items-center justify-center rounded-[var(--radius-md)] bg-gradient-to-br from-[#8b5cf6]/20 to-[#06b6d4]/20"
               >
-                <Icon name={feature.icon} size={26} className="text-[#8b5cf6]" />
+                <Icon name={feature.icon} size={24} className="text-[#8b5cf6]" />
               </motion.div>
 
               <h3 className="mb-3 text-xl font-bold text-[var(--color-ink-primary)]">
@@ -101,15 +109,11 @@ export function FeaturesSection() {
               </p>
 
               {/* Hover glow line */}
-              <motion.div
-                initial={{ scaleX: 0 }}
-                whileHover={{ scaleX: 1 }}
-                className="absolute bottom-0 left-8 right-8 h-px origin-left bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4]"
-              />
+              <div className="absolute bottom-0 left-8 right-8 h-px origin-left scale-x-0 bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] transition-transform duration-500 group-hover:scale-x-100" />
             </div>
-          </motion.div>
+          </motion.li>
         ))}
-      </div>
+      </ul>
     </motion.section>
   )
 }

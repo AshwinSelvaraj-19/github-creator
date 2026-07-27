@@ -1,15 +1,21 @@
 /**
  * WorkflowSection — animated timeline showing the README creation flow.
  *
- * Steps: Open → Choose Template → Customize → Preview → Copy Markdown → Done
- * Each step is a glass card with an icon, connected by an animated gradient line.
- * Cards stagger in on scroll and the connecting line draws progressively.
+ * Accessibility:
+ *   - Semantic <section> with aria-label
+ *   - Ordered list semantics via <ol> for the steps
+ *   - Each step is a <li> with proper heading hierarchy
+ *
+ * Motion:
+ *   - Staggered fade-up on scroll-in
+ *   - Gradient connecting line draws progressively via scrollYProgress
+ *   - Spring-based hover on icon circles
  */
 
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import { Icon, type IconName } from '@/shared/iconRegistry'
-import { fadeUp, staggerContainer } from '@/animations/variants'
+import { fadeUp, staggerContainer, hoverIcon } from '@/animations/variants'
 
 const STEPS: { icon: IconName; title: string; desc: string }[] = [
   { icon: 'sparkles', title: 'Open', desc: 'Launch the builder — no account needed.' },
@@ -36,6 +42,7 @@ export function WorkflowSection() {
       whileInView="visible"
       viewport={{ once: true, margin: '-100px' }}
       className="mx-auto max-w-6xl px-6 py-32"
+      aria-label="Workflow timeline"
     >
       <motion.div variants={fadeUp} className="mb-20 text-center">
         <h2 className="text-4xl font-bold text-gradient md:text-5xl">
@@ -48,7 +55,7 @@ export function WorkflowSection() {
 
       <div className="relative">
         {/* Animated connecting line */}
-        <div className="absolute left-0 right-0 top-12 hidden h-0.5 md:block">
+        <div className="absolute left-0 right-0 top-12 hidden h-0.5 md:block" aria-hidden="true">
           <div className="h-full bg-[var(--color-border-strong)]" />
           <motion.div
             style={{ scaleX: lineScale, transformOrigin: 'left' }}
@@ -57,12 +64,12 @@ export function WorkflowSection() {
         </div>
 
         {/* Step cards */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-6">
+        <ol className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-6 list-none">
           {STEPS.map((step, i) => (
-            <motion.div key={step.title} variants={fadeUp} className="relative flex flex-col items-center text-center">
+            <motion.li key={step.title} variants={fadeUp} className="relative flex flex-col items-center text-center">
               {/* Icon circle */}
               <motion.div
-                whileHover={{ scale: 1.1, y: -4 }}
+                {...hoverIcon}
                 className="gradient-border mb-4 flex h-24 w-24 items-center justify-center rounded-full"
               >
                 <div className="flex h-full w-full items-center justify-center rounded-full bg-white/60">
@@ -81,9 +88,9 @@ export function WorkflowSection() {
               <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-secondary)]">
                 {step.desc}
               </p>
-            </motion.div>
+            </motion.li>
           ))}
-        </div>
+        </ol>
       </div>
     </motion.section>
   )
