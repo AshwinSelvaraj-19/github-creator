@@ -1,3 +1,10 @@
+/**
+ * Centralized type definitions for the entire app.
+ *
+ * All shared types are exported from here so components import from '@/types'
+ * rather than reaching into feature folders.
+ */
+
 export type TemplateId =
   | 'neumorphism'
   | 'glassmorphism'
@@ -106,13 +113,4 @@ export interface HistoryRecord {
   date: string
   markdown: string
   config: string
-}
-
-export interface TemplateMeta {
-  id: TemplateId
-  emoji: string
-  name: string
-  filter: string
-  accent: string
-  description: string
 }
