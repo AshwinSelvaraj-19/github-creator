@@ -73,7 +73,7 @@ export function HeroSection() {
         {/* Headline — single h1, no <br> */}
         <motion.h1
           variants={fadeUp}
-          className="text-6xl font-extrabold leading-[1.02] tracking-tight md:text-8xl lg:text-[7.5rem]"
+          className="text-6xl font-extrabold leading-[1.02] tracking-tight md:text-8xl lg:text-[7.5rem] text-balance"
         >
           <span className="text-gradient-animated glow-text">Design Your GitHub Identity</span>
         </motion.h1>
@@ -98,7 +98,7 @@ export function HeroSection() {
           <Link to="/builder" aria-label="Start building your README">
             <motion.button
               {...hoverButton}
-              className="gradient-border-animated inline-flex items-center gap-2.5 rounded-[var(--radius-sm)] px-8 py-4 text-base font-semibold text-[var(--color-ink-primary)] shadow-[var(--shadow-glow-purple)]"
+              className="bg-gradient-to-r from-[#8b5cf6] via-[#06b6d4] to-[#06b6d4] inline-flex items-center gap-2.5 rounded-[var(--radius-sm)] px-8 py-4 text-base font-semibold text-white shadow-[var(--shadow-glow-purple)] hover:shadow-[var(--shadow-glow-multi)] transition-shadow duration-300"
             >
               <Icon name="sparkles" size={20} />
               Start Building
@@ -107,7 +107,7 @@ export function HeroSection() {
           <Link to="/templates" aria-label="Explore template gallery">
             <motion.button
               {...hoverButton}
-              className="glass inline-flex items-center gap-2.5 rounded-[var(--radius-sm)] px-8 py-4 text-base font-semibold text-[var(--color-ink-primary)]"
+              className="glass-premium-glow glow-border-purple inline-flex items-center gap-2.5 rounded-[var(--radius-sm)] px-8 py-4 text-base font-semibold text-[var(--color-ink-primary)] transition-shadow duration-300"
             >
               <Icon name="eye" size={20} />
               Explore Templates

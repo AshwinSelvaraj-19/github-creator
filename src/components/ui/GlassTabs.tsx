@@ -25,7 +25,7 @@ export function GlassTabs({ tabs, active, onChange, className }: GlassTabsProps)
   return (
     <div
       className={cn(
-        'inline-flex gap-1 rounded-[var(--radius-sm)] glass p-1',
+        'inline-flex gap-1 rounded-[var(--radius-sm)] glass-premium p-2 shadow-[0_0_20px_rgba(139,92,246,0.1)]',
         className,
       )}
     >
@@ -36,7 +36,7 @@ export function GlassTabs({ tabs, active, onChange, className }: GlassTabsProps)
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={cn(
-              'relative rounded-[var(--radius-xs)] px-4 py-2 text-sm font-medium transition-colors',
+              'relative rounded-[var(--radius-sm)] px-4 py-2 text-sm font-medium transition-all duration-300',
               isActive
                 ? 'text-[var(--color-ink-primary)]'
                 : 'text-[var(--color-ink-secondary)] hover:text-[var(--color-ink-primary)]',
@@ -45,7 +45,7 @@ export function GlassTabs({ tabs, active, onChange, className }: GlassTabsProps)
             {isActive && (
               <motion.span
                 {...layoutId('glass-tab')}
-                className="absolute inset-0 rounded-[var(--radius-xs)] bg-white/70"
+                className="absolute inset-0 rounded-[var(--radius-sm)] bg-gradient-to-r from-[#8b5cf6]/20 to-[#06b6d4]/10 shadow-[0_0_15px_rgba(139,92,246,0.2)]"
               />
             )}
             <span className="relative z-10">{tab.label}</span>

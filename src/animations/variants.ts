@@ -316,6 +316,50 @@ export const layoutId = (id: string) => ({
 })
 
 /* -------------------------------------------------------------------------- */
+/* Glow animations (Premium effects)                                          */
+/* -------------------------------------------------------------------------- */
+
+export const glowPulse: Variants = {
+  hidden: { boxShadow: '0 0 0px rgba(139, 92, 246, 0)' },
+  visible: {
+    boxShadow: [
+      '0 0 20px rgba(139, 92, 246, 0.2)',
+      '0 0 40px rgba(139, 92, 246, 0.3)',
+      '0 0 20px rgba(139, 92, 246, 0.2)',
+    ],
+    transition: { duration: 3, repeat: Infinity, ease: 'easeInOut' },
+  },
+}
+
+export const sidebarSlideInRight: Variants = {
+  hidden: { x: -300, opacity: 0 },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: { duration: duration.slow, ease: EASE_OUT },
+  },
+  exit: {
+    x: -300,
+    opacity: 0,
+    transition: { duration: duration.normal, ease: EASE_INOUT },
+  },
+}
+
+export const previewSlideInLeft: Variants = {
+  hidden: { x: 300, opacity: 0 },
+  visible: {
+    x: 0,
+    opacity: 1,
+    transition: { duration: duration.slow, ease: EASE_OUT, delay: 0.1 },
+  },
+  exit: {
+    x: 300,
+    opacity: 0,
+    transition: { duration: duration.normal, ease: EASE_INOUT },
+  },
+}
+
+/* -------------------------------------------------------------------------- */
 /* Barrel export                                                              */
 /* -------------------------------------------------------------------------- */
 
@@ -350,4 +394,7 @@ export const animations = {
   sidebarItem,
   toastSlide,
   accordionContent,
+  glowPulse,
+  sidebarSlideInRight,
+  previewSlideInLeft,
 } as const

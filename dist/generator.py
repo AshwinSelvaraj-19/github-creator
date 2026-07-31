@@ -1,0 +1,1075 @@
+import json
+import re
+import urllib.parse
+from datetime import datetime
+
+def is_valid_github_username(username):
+    if not username or not isinstance(username, str):
+        return False
+    return bool(re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9\-]{0,37}[A-Za-z0-9])?", username))
+
+def _enc(t):
+    return urllib.parse.quote(t)
+
+def _typing_svg(data, lines=None):
+    name = data.get("name", "User")
+    title = data.get("title", "Developer")
+    if lines is None:
+        lines = [f"Hi there 👋, I'm {name}", title, "Welcome to my profile"]
+    color = data.get("typingColor", "8B5CF6")
+    bg = data.get("typingBg", "0D1117")
+    font = data.get("typingFont", "Inter")
+    speed = data.get("typingSpeed", 3000)
+    encoded = ";".join(lines)
+    url = f"https://readme-typing-svg.herokuapp.com?font={_enc(font)}&weight=700&size={28}&duration={speed}&pause=800&color={color}&background={bg}&center=true&vCenter=true&width=700&height=55&lines={_enc(encoded)}"
+    return url
+
+def _stats_card(username, theme="2077"):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username={username}&theme={theme}"
+
+def _github_stats(username, color="8B5CF6", bg="0D1117"):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://github-readme-stats.vercel.app/api?username={username}&show_icons=true&hide_border=true&title_color={color}&icon_color={color}&text_color=c9d1d9&bg_color={bg}"
+
+def _streak_stats(username, color="8B5CF6"):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://github-readme-streak-stats.herokuapp.com/?user={username}&hide_border=true&stroke={color}&ring={color}&fire={color}&currStreakLabel={color}&background=0D1117&currStreakNum=c9d1d9&sideNums=c9d1d9"
+
+def _top_langs(username, color="8B5CF6", bg="0D1117"):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://github-readme-stats.vercel.app/api/top-langs/?username={username}&layout=compact&hide_border=true&title_color={color}&text_color=c9d1d9&bg_color={bg}"
+
+def _trophy(username):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://github-profile-trophy.vercel.app/?username={username}&theme=nord&column=4&no-frame=true&margin-w=10&margin-h=10"
+
+def _activity_graph(username, color="8B5CF6"):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://github-readme-activity-graph.vercel.app/graph?username={username}&bg_color=0D1117&color={color}&line={color}&point=A78BFA&area=true&hide_border=true"
+
+def _visitor_badge(username):
+    if not is_valid_github_username(username):
+        return ""
+    return f"https://komarev.com/ghpvc/?username={username}&label=Profile%20Views&color=8b5cf6&style=flat"
+
+def _snake_url(username, dark=True):
+    if not is_valid_github_username(username):
+        return ""
+    ext = "dark.svg" if dark else "svg"
+    return f"https://raw.githubusercontent.com/{username}/{username}/output/github-contribution-grid-snake-{ext}"
+
+def _badge(label, color="8B5CF6"):
+    return f"https://img.shields.io/badge/{_enc(label)}-{color}?style=for-the-badge"
+
+def _social_badge(platform, username, color):
+    return f"https://img.shields.io/badge/{_enc(platform)}-{color}?style=for-the-badge&logo={platform.lower()}&logoColor=white"
+
+def _wrap(p, content):
+    return f"<p align=\"{p}\">\n{content}\n</p>"
+
+def _h2(text, align="center"):
+    return f"<h2 align=\"{align}\">{text}</h2>"
+
+def _h3(text, align="center"):
+    return f"<h3 align=\"{align}\">{text}</h3>"
+
+def _hr():
+    return "\n---\n"
+
+def _gh_card(content, bg=""):
+    if bg:
+        return f'<table align="center" width="100%"><tr><td align="center" bgcolor="{bg}">{content}</td></tr></table>'
+    return f'<table align="center" width="100%"><tr><td align="center">{content}</td></tr></table>'
+
+def _gh_two_cols(left_cell, right_cell, lw="50%", rw="50%"):
+    return f'<table align="center" width="100%"><tr><td width="{lw}" align="center">{left_cell}</td><td width="{rw}" align="center">{right_cell}</td></tr></table>'
+
+def _gh_three_cols(c1, c2, c3):
+    return f'<table align="center" width="100%"><tr><td width="33%" align="center">{c1}</td><td width="33%" align="center">{c2}</td><td width="34%" align="center">{c3}</td></tr></table>'
+
+def _skills_badges(skills, size="for-the-badge"):
+    colors = {
+        "HTML": "E34F26", "CSS": "1572B6", "JavaScript": "F7DF1E", "TypeScript": "3178C6",
+        "Python": "3776AB", "Java": "ED8B00", "C": "A8B9CC", "C++": "00599C",
+        "React": "20232A", "Node.js": "339933", "Express": "000000", "FastAPI": "009688",
+        "Flask": "000000", "Tailwind CSS": "06B6D4", "Bootstrap": "7952B3",
+        "MySQL": "4479A1", "PostgreSQL": "4169E1", "MongoDB": "47A248", "SQLite": "003B57",
+        "Git": "F05032", "GitHub": "181717", "Docker": "2496ED", "AWS": "FF9900",
+        "Figma": "F24E1E", "VS Code": "007ACC", "Supabase": "3FCF8E"
+    }
+    badges = []
+    for s in skills:
+        s = s.strip()
+        c = colors.get(s, "8B5CF6")
+        badges.append(f"<img src=\"https://img.shields.io/badge/{_enc(s)}-{c}?style={size}&logo={_enc(s.lower().replace(' ', ''))}&logoColor=white\" />")
+    return " ".join(badges)
+
+def _skills_text(skills):
+    return ", ".join(s.strip() for s in skills if s.strip())
+
+# ========== TEMPLATE 1: NEUMORPHISM (Clean Minimal) ==========
+def generate_neumorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "6C5CE7")
+    sections = []
+
+    if data.get("useExternalCapsules", False):
+        sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,14,19,20&height=60&text={_enc(n)}&fontSize=28&fontColor={a}" width="70%" />'))
+    else:
+        sections.append(f'<h1 align="center">👋 Hi, I\'m {n}</h1>\n<p align="center"><em>{t}</em></p>')
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        about = f"<h3>👤 About</h3><p><em>{t}</em></p>"
+        if bio: about += f"<p>{bio}</p>"
+        if data.get("education"): about += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): about += f"<p>📍 {data['location']}</p>"
+        sections.append(about)
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🛠 Tech Stack"))
+        cats = []
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                cats.append(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}")
+        if cats:
+            sections.append("<p align=\"center\">\n" + "<br/><br/>\n".join(cats) + "\n</p>")
+        sections.append(_hr())
+
+    if u:
+        if data.get("showGithubStats", True) or data.get("showStreak", True):
+            sections.append(_h2("📊 GitHub Stats"))
+            gh = []
+            if data.get("showGithubStats", True):
+                gh.append(f'<img src="{_github_stats(u, a, "e0e5ec")}" width="48%" />')
+            if data.get("showStreak", True):
+                gh.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+            if gh:
+                sections.append(f'<div align="center">{"  ".join(gh)}</div>')
+
+        if data.get("showTopLangs", True):
+            sections.append(f'<div align="center"><img src="{_top_langs(u, a, "e0e5ec")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_hr())
+        sections.append(f"<p align=\"center\">📖 <b>Currently Learning:</b> {data['learning']}</p>")
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("📁 Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>• {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">View →</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("🤝 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'⭐️ From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 2: GLASSMORPHISM (Frosted Dashboard) ==========
+def generate_glassmorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "A78BFA")
+    sections = []
+
+    if data.get("useExternalCapsules", False):
+        sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,14,19,20&height=60&text={_enc(n)}&fontSize=28&fontColor={a}" width="70%" />'))
+    else:
+        sections.append(_reliable_header(data))
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showGithubStats", True) and u and data.get("showStreak", True) and u:
+        sections.append(_h2("📊 Dashboard"))
+        gh_card = _gh_two_cols(f'<img src="{_github_stats(u, a, "1A0533")}" width="90%" />', f'<img src="{_streak_stats(u, a)}" width="90%" />')
+        sections.append(gh_card)
+        sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>💠 About Me</h3><p><em>{t}</em></p>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="1A0533"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🔮 Skills"))
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                sections.append(_gh_card(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}", bg="1A0533"))
+        sections.append(_hr())
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"🌱 <b>Learning</b><br/>{data['learning']}", bg="1A0533"))
+        sections.append(_hr())
+
+    if data.get("showTopLangs", True) and u:
+        sections.append(f'<div align="center"><img src="{_top_langs(u, a, "1A0533")}" width="60%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("🚀 Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>◇ {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">GitHub</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("🌐 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'💎 From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 3: SKEUOMORPHISM (Vintage Journal) ==========
+def generate_skeuomorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "8B4513")
+    sections = []
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(f"""<div align="center">
+<pre>
+📂 {u}/
+├── 📄 README.md
+├── 📁 about/
+│   ├── name.txt    → {n}
+│   ├── title.txt   → {t}
+│   └── bio.txt     → {bio if bio else "..."}
+├── 📁 skills/
+├── 📁 projects/
+├── 📁 learning/
+└── 📁 social/
+</pre>
+</div>""")
+
+    if u and (data.get("showGithubStats", True) or data.get("showStreak", True)):
+        sections.append(_hr())
+        sections.append(_h2("📊 Ledger"))
+        rows = []
+        if data.get("showGithubStats", True):
+            rows.append(f'<img src="{_github_stats(u, a, "F5F0E8")}" width="48%" />')
+        if data.get("showStreak", True):
+            rows.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+        if rows:
+            sections.append(f'<div align="center">{"  ".join(rows)}</div>')
+
+    sections.append(_hr())
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>📜 About {n}</h3>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="F5F0E8"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🔧 Toolbox"))
+        pairs = []
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                pairs.append(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}")
+        for i in range(0, len(pairs), 2):
+            if i+1 < len(pairs):
+                sections.append(_gh_two_cols(pairs[i], pairs[i+1]))
+            else:
+                sections.append(f'<p align="center">{pairs[i]}</p>')
+        sections.append(_hr())
+
+    if data.get("showTopLangs", True) and u:
+        sections.append(f'<div align="center"><img src="{_top_langs(u, a, "F5F0E8")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_hr())
+        sections.append(_gh_card(f"📘 <b>Journal Entry</b><br/>{data['learning']}", bg="F5F0E8"))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("📁 Portfolio"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>📄 {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">Open</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("✉️ Contact"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'📝 From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 4: CLAYMORPHISM (Playful Rounded) ==========
+def generate_claymorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "EC407A")
+    sections = []
+
+    if data.get("useExternalCapsules", False):
+        sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=soft&color=gradient&customColorList=2,4,6,8&height=150&text=✨+{_enc(n)}+✨&fontSize=35&fontColor=ffffff" width="100%" />'))
+    else:
+        sections.append(f'<h1 align="center">🧸 Hello, I\'m {n}</h1>\n<p align="center"><em>{t}</em></p>')
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>🌸 About Me</h3><p><em>{t}</em></p>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="FCE4EC"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🎀 Skills"))
+        alt = 0
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                bg = "FCE4EC" if alt % 2 == 0 else "E8EAF6"
+                sections.append(_gh_card(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}", bg=bg))
+                alt += 1
+        sections.append(_hr())
+
+    if u:
+        if data.get("showGithubStats", True) or data.get("showStreak", True):
+            sections.append(_h2("📊 GitHub Stats"))
+            gh = []
+            if data.get("showGithubStats", True):
+                gh.append(f'<img src="{_github_stats(u, a, "FCE4EC")}" width="48%" />')
+            if data.get("showStreak", True):
+                gh.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+            if gh:
+                sections.append(f'<div align="center">{"  ".join(gh)}</div>')
+        if data.get("showTopLangs", True):
+            sections.append(f'<div align="center"><img src="{_top_langs(u, a, "FCE4EC")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"🧁 <b>Learning</b><br/>{data['learning']}", bg="FCE4EC"))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("🍬 Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>💖 {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">View</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("💌 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=2,4,6,8&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'💫 From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 5: AURORAISM (Dark Neon) ==========
+def generate_auroraism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "00FF88")
+    sections = []
+
+    if data.get("useExternalCapsules", False):
+        sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=egg&color={a}&height=120&text={_enc(n)}&fontSize=35&fontColor=ffffff" width="100%" />'))
+    else:
+        sections.append(f'<h1 align="center">🌌 SYSTEM: {n}</h1>\n<p align="center"><em>{t}</em></p>')
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>🌿 Profile</h3><p><em>{t}</em></p>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="0A0E1A"))
+        sections.append(_hr())
+
+    if u and (data.get("showGithubStats", True) or data.get("showStreak", True)):
+        sections.append(_h2("⚡ System Stats"))
+        gh = []
+        if data.get("showGithubStats", True):
+            gh.append(f'<img src="{_github_stats(u, a, "0A0E1A")}" width="48%" />')
+        if data.get("showStreak", True):
+            gh.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+        if gh:
+            sections.append(f'<div align="center">{"  ".join(gh)}</div>')
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("⚡ Skills"))
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                sections.append(_gh_card(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}", bg="0A0E1A"))
+        sections.append(_hr())
+
+    if data.get("showTopLangs", True) and u:
+        sections.append(f'<div align="center"><img src="{_top_langs(u, a, "0A0E1A")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"🌱 <b>Learning</b><br/>{data['learning']}", bg="0A0E1A"))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("🚀 Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>◆ {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">Repo</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("🌐 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color={a}&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'✨ From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 6: FROSTEDMORPHISM (Icy Crystal) ==========
+def generate_frostedmorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "1565C0")
+    sections = []
+
+    sections.append(f'<h1 align="center">❄️ {n}</h1>\n<p align="center"><em>{t}</em></p>')
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>❄️ About Me</h3><p><em>{t}</em></p>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="E3F2FD"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🧊 Skills"))
+        alt = 0
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                bg = "E3F2FD" if alt % 2 == 0 else "BBDEFB"
+                sections.append(_gh_card(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}", bg=bg))
+                alt += 1
+        sections.append(_hr())
+
+    if u:
+        if data.get("showGithubStats", True) or data.get("showStreak", True):
+            sections.append(_h2("📊 GitHub Stats"))
+            gh = []
+            if data.get("showGithubStats", True):
+                gh.append(f'<img src="{_github_stats(u, a, "E3F2FD")}" width="48%" />')
+            if data.get("showStreak", True):
+                gh.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+            if gh:
+                sections.append(f'<div align="center">{"  ".join(gh)}</div>')
+        if data.get("showTopLangs", True):
+            sections.append(f'<div align="center"><img src="{_top_langs(u, a, "E3F2FD")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"📘 <b>Learning</b><br/>{data['learning']}", bg="E3F2FD"))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("📁 Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>🧊 {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">GitHub</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("💬 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=1,2,3&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'❄️ From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 7: GRADIENTMORPHISM (Spectrum) ==========
+def generate_gradientmorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "F472B6")
+    sections = []
+
+    if data.get("useExternalCapsules", False):
+        sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=shark&color=gradient&customColorList=12,14,19,20&height=150&text=🌈+{_enc(n)}&fontSize=35&fontColor=ffffff" width="100%" />'))
+    else:
+        sections.append(f'<h1 align="center">🌈 {n}</h1>\n<p align="center"><em>{t}</em></p>')
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if u and (data.get("showGithubStats", True) or data.get("showStreak", True)):
+        sections.append(_h2("🌈 Spectrum Stats"))
+        items = []
+        if data.get("showGithubStats", True):
+            items.append(f'<img src="{_github_stats(u, a, "F3E8FF")}" width="48%" />')
+        if data.get("showStreak", True):
+            items.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+        if items:
+            sections.append(f'<div align="center">{"  ".join(items)}</div>')
+            sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>🎨 About Me</h3><p><em>{t}</em></p>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="F3E8FF"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🌈 Skills"))
+        alt = 0
+        bgs = ["F3E8FF", "FCE7F3", "CFFAFE", "FEF3C7", "EDE9FE"]
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                sections.append(_gh_card(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}", bg=bgs[alt % len(bgs)]))
+                alt += 1
+        sections.append(_hr())
+
+    if data.get("showTopLangs", True) and u:
+        sections.append(f'<div align="center"><img src="{_top_langs(u, a, "F3E8FF")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"📖 <b>Learning</b><br/>{data['learning']}", bg="F3E8FF"))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("🚀 Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>🌟 {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">GitHub</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("💞 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'🌈 From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 8: LAYERMORPHISM (Stacked Layers) ==========
+def generate_layermorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "A78BFA")
+    sections = []
+
+    sections.append(f'<h1 align="center">🗂️ {n}</h1>\n<p align="center"><em>{t}</em></p>')
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        about = f"<h3>📦 Layer 1: About</h3><p><em>{t}</em></p>"
+        if bio: about += f"<p>{bio}</p>"
+        if data.get("education"): about += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): about += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(about, bg="1A1A2E"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("📦 Layer 2: Skills"))
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                sections.append(f"<b>{cat.title()}</b><br/>{_skills_badges(items)}<br/><br/>")
+        sections.append(_hr())
+
+    if u:
+        if data.get("showGithubStats", True) or data.get("showStreak", True):
+            sections.append(_h2("📦 Layer 3: GitHub Stats"))
+            gh = []
+            if data.get("showGithubStats", True):
+                gh.append(f'<img src="{_github_stats(u, a, "1A1A2E")}" width="48%" />')
+            if data.get("showStreak", True):
+                gh.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+            if gh:
+                sections.append(f'<div align="center">{"  ".join(gh)}</div>')
+        if data.get("showTopLangs", True):
+            sections.append(f'<div align="center"><img src="{_top_langs(u, a, "1A1A2E")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"📦 <b>Layer 4: Learning</b><br/>{data['learning']}", bg="222240"))
+        sections.append(_hr())
+
+    if data.get("projects"):
+        sections.append(_h2("📦 Layer 5: Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>📌 {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">Open</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("📦 Layer 6: Social"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'⬆️ From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 9: POLYMORPHISM (Geometric) ==========
+def generate_polymorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "F472B6")
+    sections = []
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(f"""<div align="center">
+<pre>
+    /\\
+   /  \\     {n}
+  / /\\ \\    {t}
+ /_/  \\_\\   {bio if bio else ""}
+</pre>
+</div>""")
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        info = f"<h3>🔺 About</h3>"
+        if bio: info += f"<p>{bio}</p>"
+        if data.get("education"): info += f"<p>🎓 {data['education']}</p>"
+        if data.get("location"): info += f"<p>📍 {data['location']}</p>"
+        sections.append(_gh_card(info, bg="0F0A1E"))
+        sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(_h2("🔷 Skills"))
+        pairs = []
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                pairs.append(f"<b>◇ {cat.title()}</b><br/>{_skills_badges(items)}")
+        for i in range(0, len(pairs), 2):
+            bg = "0F0A1E"
+            if i+1 < len(pairs):
+                sections.append(_gh_two_cols(pairs[i], pairs[i+1]))
+            else:
+                sections.append(_gh_card(pairs[i], bg=bg))
+        sections.append(_hr())
+
+    if u:
+        if data.get("showGithubStats", True) or data.get("showStreak", True):
+            sections.append(_h2("📊 GitHub Stats"))
+            gh = []
+            if data.get("showGithubStats", True):
+                gh.append(f'<img src="{_github_stats(u, a, "0F0A1E")}" width="48%" />')
+            if data.get("showStreak", True):
+                gh.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+            if gh:
+                sections.append(f'<div align="center">{"  ".join(gh)}</div>')
+        if data.get("showTopLangs", True):
+            sections.append(f'<div align="center"><img src="{_top_langs(u, a, "0F0A1E")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(_gh_card(f"△ <b>Learning</b><br/>{data['learning']}", bg="0F0A1E"))
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append(_h2("⬡ Projects"))
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>◇ {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">View</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append(_h2("🔗 Connect"))
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'🔶 From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+# ========== TEMPLATE 10: METAMORPHISM (Evolving/Transformer) ==========
+def generate_metamorphism_template(data):
+    u = data.get("username", "")
+    if not is_valid_github_username(u): u = ""
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    bio = data.get("bio", "")
+    a = data.get("accentColor", "C084FC")
+    sections = []
+
+    if data.get("useExternalCapsules", False):
+        sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=wave&color=gradient&customColorList=12,14,19,20&height=180&text=✦+{_enc(n)}+✦&fontSize=40&fontColor=ffffff" width="100%" />'))
+    else:
+        sections.append(f'<h1 align="center">✦ {n} ✦</h1>\n<p align="center"><em>{t}</em></p>')
+
+    sections.append(_wrap("center", f'<img src="{_typing_svg(data)}" />'))
+    if data.get("showVisitorCounter", True) and u:
+        sections.append(_wrap("center", f'<img src="{_visitor_badge(u)}" />'))
+    sections.append(_hr())
+
+    if data.get("showAbout", True) and (bio or data.get("education") or data.get("location")):
+        about = f"▎<b>ABOUT</b> — {n}<br/><em>{t}</em>"
+        if bio: about += f"<br/>{bio}"
+        if data.get("education"): about += f"<br/>🎓 {data['education']}"
+        if data.get("location"): about += f"<br/>📍 {data['location']}"
+        sections.append(_gh_card(about, bg="0D0D1A"))
+        sections.append(_hr())
+
+    if u:
+        if data.get("showGithubStats", True) or data.get("showStreak", True):
+            sections.append("▎<b>GITHUB STATS</b>")
+            items = []
+            if data.get("showGithubStats", True):
+                items.append(f'<img src="{_github_stats(u, a, "0D0D1A")}" width="48%" />')
+            if data.get("showStreak", True):
+                items.append(f'<img src="{_streak_stats(u, a)}" width="48%" />')
+            if items:
+                sections.append(f'<div align="center">{"  ".join(items)}</div>')
+            sections.append(_hr())
+
+    if data.get("showSkills", True) and data.get("skills"):
+        sections.append(f"""<div align="center">
+<pre>
+┌─ SKILLS MATRIX ──────────────┐
+│   Expertise                   │
+└───────────────────────────────┘
+</pre>
+</div>""")
+        for cat in ["languages", "frontend", "backend", "databases", "tools"]:
+            items = data.get("skills", {}).get(cat, [])
+            if items:
+                sections.append(f"<b>▸ {cat.title()}</b><br/>{_skills_badges(items)}<br/><br/>")
+        sections.append(_hr())
+
+    if data.get("showTopLangs", True) and u:
+        sections.append(f'<div align="center"><img src="{_top_langs(u, a, "0D0D1A")}" width="48%" /></div>')
+
+    if data.get("showActivityGraph", True) and u:
+        sections.append(_wrap("center", f'<img src="{_activity_graph(u, a)}" width="95%" />'))
+
+    if data.get("showLearning", True) and data.get("learning"):
+        sections.append(f"""<div align="center">
+<pre>
+┌─ LEARNING ─────────────────────┐
+│   {data['learning']}
+└────────────────────────────────┘
+</pre>
+</div>""")
+
+    if data.get("projects"):
+        sections.append(_hr())
+        sections.append("▎<b>PROJECTS</b>")
+        for p in data["projects"]:
+            name = p.get("name", ""); desc = p.get("desc", ""); repo = p.get("repo", ""); techs = p.get("techs", [])
+            proj = f"<b>✦ {name}</b>"
+            if desc: proj += f"<br/>{desc}"
+            if repo: proj += f'<br/><a href="https://github.com/{repo}">View</a>'
+            if techs: proj += f'<br/>{_skills_badges(techs, "flat-square")}'
+            sections.append(proj)
+
+    if data.get("socialLinks"):
+        sections.append(_hr())
+        sections.append("▎<b>CONNECT</b>")
+        links = []
+        for s in data["socialLinks"]:
+            if s.get("url"):
+                links.append(f'<a href="{s["url"]}"><img src="{_social_badge(s["platform"], u, a)}" /></a>')
+        if links:
+            sections.append(_wrap("center", " ".join(links)))
+
+    if data.get("showFooter", True):
+        if data.get("useExternalCapsules", False):
+            sections.append(_wrap("center", f'<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,14,19,20&height=100&section=footer" width="100%" />'))
+        sections.append(_wrap("center", f'⟳ From <a href="https://github.com/{u}">@{u}</a>'))
+    return "\n\n".join(sections)
+
+
+def _br():
+    return "<br/><br/>\n"
+
+def _reliable_header(data):
+    n = data.get("name", "User")
+    t = data.get("title", "Developer")
+    return f'<div align="center">\n<h1>👋 {n}</h1>\n<h3>{t}</h3>\n</div>'
+
+def _footer_text(data):
+    u = data.get("username", "")
+    return f'<div align="center">\n⭐️ From <a href="https://github.com/{u}">@{u}</a>\n</div>'
+
+def normalize_data(value):
+    if value is None:
+        return None
+    if isinstance(value, dict):
+        return {str(key): normalize_data(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [normalize_data(item) for item in value]
+    if isinstance(value, tuple):
+        return [normalize_data(item) for item in value]
+    if hasattr(value, "to_py"):
+        return normalize_data(value.to_py())
+    return value
+
+def generate_readme(data):
+    data = normalize_data(data)
+    if not isinstance(data, dict):
+        raise TypeError(f"generate_readme expected dict, received {type(data).__name__}")
+    template = data.get("template", "neumorphism").lower()
+    if template == "neumorphism":
+        return generate_neumorphism_template(data)
+    elif template == "glassmorphism":
+        return generate_glassmorphism_template(data)
+    elif template == "skeuomorphism":
+        return generate_skeuomorphism_template(data)
+    elif template == "claymorphism":
+        return generate_claymorphism_template(data)
+    elif template == "auroraism":
+        return generate_auroraism_template(data)
+    elif template == "frostedmorphism":
+        return generate_frostedmorphism_template(data)
+    elif template == "gradientmorphism":
+        return generate_gradientmorphism_template(data)
+    elif template == "layermorphism":
+        return generate_layermorphism_template(data)
+    elif template == "polymorphism":
+        return generate_polymorphism_template(data)
+    elif template == "metamorphism":
+        return generate_metamorphism_template(data)
+    else:
+        return generate_neumorphism_template(data)
+
+def generate_snake_workflow(username):
+    return f"""name: Generate Snake
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Platane/snk@v3
+        with:
+          github_user_name: {username}
+          outputs: |
+            dist/github-contribution-grid-snake.svg
+            dist/github-contribution-grid-snake-dark.svg?palette=github-dark
+      - uses: actions/upload-artifact@v3
+        with:
+          name: snake
+          path: dist
+      - uses: crazy-max/ghaction-github-pages@v3
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{{{ secrets.GITHUB_TOKEN }}}}
+"""

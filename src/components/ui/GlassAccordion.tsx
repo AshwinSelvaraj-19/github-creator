@@ -26,11 +26,16 @@ export function GlassAccordion({
 }: GlassAccordionProps) {
   const [open, setOpen] = useState(defaultOpen)
   return (
-    <div className={cn('glass rounded-[var(--radius-md)] overflow-hidden', className)}>
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-5 py-4 text-sm font-semibold text-[var(--color-ink-primary)]"
-      >
+    <div className={cn('glass-premium rounded-[var(--radius-md)] overflow-hidden shadow-[0_0_15px_rgba(139,92,246,0.05)] transition-shadow duration-300', className)}>
+        <button
+          onClick={() => setOpen(!open)}
+          className={cn(
+            'flex w-full items-center justify-between rounded-[var(--radius-md)] px-4 py-3 text-sm font-medium transition-all duration-300',
+            open
+              ? 'bg-gradient-to-r from-[#8b5cf6]/10 to-[#06b6d4]/10 text-[var(--color-ink-primary)] shadow-[0_0_15px_rgba(139,92,246,0.1)]'
+              : 'text-[var(--color-ink-secondary)] hover:bg-white/40 hover:text-[var(--color-ink-primary)]',
+          )}
+        >
         {title}
         <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.3 }}>
           <Icon name="chevronDown" size={18} />

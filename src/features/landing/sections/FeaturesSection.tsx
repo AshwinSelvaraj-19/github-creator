@@ -90,18 +90,18 @@ export function FeaturesSection() {
         {FEATURES.map((feature) => (
           <motion.li key={feature.title} variants={fadeUp} {...hoverCard} className="group relative">
             <div
-              className="gradient-border-animated h-full rounded-[var(--radius-lg)] p-8 transition-shadow duration-500 group-hover:shadow-[0_20px_60px_rgba(var(--feature-glow),0.2)]"
+              className="gradient-border-animated glass-premium h-full rounded-[var(--radius-lg)] p-8 transition-all duration-500 group-hover:shadow-[var(--shadow-glow-multi)]"
               style={{ ['--feature-glow' as string]: feature.glow }}
             >
               {/* Icon */}
               <motion.div
                 {...hoverIcon}
-                className="mb-6 flex h-14 w-14 items-center justify-center rounded-[var(--radius-md)] bg-gradient-to-br from-[#8b5cf6]/20 to-[#06b6d4]/20"
+                className="mb-6 flex h-14 w-14 items-center justify-center rounded-[var(--radius-md)] bg-gradient-to-br from-[#8b5cf6]/30 to-[#06b6d4]/20 shadow-[0_0_20px_rgba(139,92,246,0.15)] transition-shadow duration-300 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.25)]"
               >
                 <Icon name={feature.icon} size={24} className="text-[#8b5cf6]" />
               </motion.div>
 
-              <h3 className="mb-3 text-xl font-bold text-[var(--color-ink-primary)]">
+              <h3 className="mb-3 text-lg font-bold text-[var(--color-ink-primary)]">
                 {feature.title}
               </h3>
               <p className="text-sm leading-relaxed text-[var(--color-ink-secondary)]">
@@ -109,7 +109,7 @@ export function FeaturesSection() {
               </p>
 
               {/* Hover glow line */}
-              <div className="absolute bottom-0 left-8 right-8 h-px origin-left scale-x-0 bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] transition-transform duration-500 group-hover:scale-x-100" />
+              <div className="absolute bottom-0 left-8 right-8 h-px origin-left scale-x-0 bg-gradient-to-r from-[#8b5cf6] via-[#06b6d4] to-[#ec4899] shadow-[0_0_10px_rgba(139,92,246,0.3)] transition-all duration-500 group-hover:scale-x-100 group-hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]" />
             </div>
           </motion.li>
         ))}

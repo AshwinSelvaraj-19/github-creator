@@ -3,14 +3,15 @@
  *
  * A motion.div with configurable blur, opacity, and glow. All other glass
  * components compose this. Use it directly for custom layouts.
+ * Now with premium glow variants and enhanced effects.
  */
 
 import { forwardRef } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '@/utils/cn'
 
-type GlassVariant = 'default' | 'strong' | 'subtle'
-type GlowColor = 'none' | 'purple' | 'cyan' | 'pink'
+type GlassVariant = 'default' | 'strong' | 'subtle' | 'premium' | 'premium-glow'
+type GlowColor = 'none' | 'purple' | 'cyan' | 'pink' | 'orange' | 'blue' | 'multi'
 
 export interface GlassPanelProps extends HTMLMotionProps<'div'> {
   variant?: GlassVariant
@@ -21,6 +22,8 @@ const variantClass: Record<GlassVariant, string> = {
   default: 'glass',
   strong: 'glass-strong',
   subtle: 'bg-white/40 backdrop-blur-xl border border-white/30',
+  premium: 'glass-premium',
+  'premium-glow': 'glass-premium-glow',
 }
 
 const glowClass: Record<GlowColor, string> = {
@@ -28,6 +31,9 @@ const glowClass: Record<GlowColor, string> = {
   purple: 'shadow-[var(--shadow-glow-purple)]',
   cyan: 'shadow-[var(--shadow-glow-cyan)]',
   pink: 'shadow-[var(--shadow-glow-pink)]',
+  orange: 'shadow-[var(--shadow-glow-orange)]',
+  blue: 'shadow-[var(--shadow-glow-blue)]',
+  multi: 'shadow-[var(--shadow-glow-multi)]',
 }
 
 export const GlassPanel = forwardRef<HTMLDivElement, GlassPanelProps>(

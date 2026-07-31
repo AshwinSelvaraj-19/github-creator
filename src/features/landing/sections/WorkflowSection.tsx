@@ -67,18 +67,18 @@ export function WorkflowSection() {
         <ol className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-6 list-none">
           {STEPS.map((step, i) => (
             <motion.li key={step.title} variants={fadeUp} className="relative flex flex-col items-center text-center">
-              {/* Icon circle */}
+              {/* Icon circle with premium glow */}
               <motion.div
                 {...hoverIcon}
-                className="gradient-border mb-4 flex h-24 w-24 items-center justify-center rounded-full"
+                className="gradient-border-animated mb-4 flex h-24 w-24 items-center justify-center rounded-full shadow-[var(--shadow-glow-purple)] transition-shadow duration-300 hover:shadow-[var(--shadow-glow-multi)]"
               >
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-white/60">
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-white/70 backdrop-blur-sm">
                   <Icon name={step.icon} size={28} className="text-[#8b5cf6]" />
                 </div>
               </motion.div>
 
               {/* Step number */}
-              <span className="mb-1 text-xs font-bold text-[var(--color-ink-muted)]">
+              <span className="mb-1 text-xs font-bold uppercase tracking-wider text-[var(--color-ink-muted)]">
                 Step {i + 1}
               </span>
 

@@ -72,14 +72,14 @@ export function TemplatesCarousel() {
           <div className="hidden gap-2 md:flex">
             <button
               onClick={() => scrollByAmount(-340)}
-              className="glass flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-colors hover:text-[var(--color-ink-primary)]"
+              className="glass-premium glow-border-purple flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-all duration-300 hover:text-[var(--color-ink-primary)] hover:shadow-[var(--shadow-glow-purple)]"
               aria-label="Scroll templates left"
             >
               <Icon name="arrowLeft" size={18} />
             </button>
             <button
               onClick={() => scrollByAmount(340)}
-              className="glass flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-colors hover:text-[var(--color-ink-primary)]"
+              className="glass-premium glow-border-purple flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-all duration-300 hover:text-[var(--color-ink-primary)] hover:shadow-[var(--shadow-glow-purple)]"
               aria-label="Scroll templates right"
             >
               <Icon name="arrowRight" size={18} />
@@ -91,7 +91,7 @@ export function TemplatesCarousel() {
       {/* Carousel */}
       <div
         ref={scrollRef}
-        className="hide-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-8"
+        className="hide-scrollbar mx-auto max-w-7xl flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-8"
         role="list"
       >
         {templateRegistry.map((template, i) => (
@@ -160,7 +160,7 @@ function CarouselCard({
       >
         <div
           ref={tiltRef}
-          className="preserve-3d glass-reflect relative h-80 w-72 overflow-hidden rounded-[var(--radius-lg)] glass"
+          className="preserve-3d glass-reflect relative h-80 w-72 overflow-hidden rounded-[var(--radius-lg)] glass-premium glow-border-purple"
           style={{ transition: 'transform 0.15s ease-out, box-shadow 0.3s ease' }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
@@ -169,7 +169,7 @@ function CarouselCard({
           <div
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(135deg, ${template.theme.accent}18, ${template.theme.accent}05)`,
+              background: `linear-gradient(135deg, ${template.theme.accent}20, ${template.theme.accent}08)`,
             }}
             aria-hidden="true"
           />
