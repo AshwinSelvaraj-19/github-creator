@@ -237,7 +237,7 @@ export function ImmersiveBackground() {
     }
     window.addEventListener('mousemove', onMove)
     return () => window.removeEventListener('mousemove', onMove)
-  }, [mouseX, mouseY])
+  }, [])
 
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
