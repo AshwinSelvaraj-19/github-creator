@@ -11,6 +11,9 @@ export default defineConfig({
       '@': path.resolve(path.dirname(fileURLToPath(import.meta.url)), './src'),
     },
   },
+  optimizeDeps: {
+    exclude: ['zustand'],
+  },
   server: {
     port: 5173,
     host: true,
