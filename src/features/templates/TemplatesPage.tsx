@@ -19,10 +19,12 @@ import { getTemplatesByCategory, getTemplateCategories, templateRegistry } from 
 import { useTemplates, useBuilder } from '@/store/selectors'
 import { cn } from '@/utils/cn'
 
+import { IconName } from '@/shared/iconRegistry'
+
 interface StatCard {
   label: string
   value: number | string
-  icon: string
+  icon: IconName
 }
 
 export default function TemplatesPage() {
@@ -60,10 +62,10 @@ export default function TemplatesPage() {
 
   // Statistics
   const stats: StatCard[] = [
-    { label: 'Total Templates', value: allTemplates.length, icon: 'grid' },
-    { label: 'Categories', value: categories.filter((c) => c !== 'all').length, icon: 'layers' },
-    { label: 'Popular', value: allTemplates.filter((t) => t.metadata.downloads && t.metadata.downloads > 100).length, icon: 'trending' },
-    { label: 'Recently Added', value: 3, icon: 'clock' },
+    { label: 'Total Templates', value: allTemplates.length, icon: 'layout' },
+    { label: 'Categories', value: categories.filter((c) => c !== 'all').length, icon: 'filter' },
+    { label: 'Popular', value: allTemplates.filter((t) => t.metadata.downloads && t.metadata.downloads > 100).length, icon: 'star' },
+    { label: 'Recently Added', value: 3, icon: 'zap' },
   ]
 
   const handleSelect = (id: string) => {
@@ -95,14 +97,11 @@ export default function TemplatesPage() {
                 variants={cardItem}
                 className="glass-premium rounded-[var(--radius-md)] p-4 glow-border-purple"
               >
-                <div className="flex items-center gap-3">
-                  <Icon name={stat.icon as any} size={20} className="text-[#8b5cf6]" />
-                  <div>
-                    <p className="text-xs uppercase tracking-wider text-[var(--color-ink-muted)]">
-                      {stat.label}
-                    </p>
-                    <p className="text-2xl font-bold text-[var(--color-ink-primary)]">{stat.value}</p>
-                  </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-[var(--color-ink-muted)]">
+                    {stat.label}
+                  </p>
+                  <p className="text-2xl font-bold text-[var(--color-ink-primary)]">{stat.value}</p>
                 </div>
               </motion.div>
             ))}
@@ -116,11 +115,6 @@ export default function TemplatesPage() {
         <motion.div variants={fadeUp} className="mb-10 space-y-6">
           {/* Search Bar */}
           <div className="relative">
-            <Icon
-              name="search"
-              size={18}
-              className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ink-muted)]"
-            />
             <input
               type="text"
               placeholder="Search templates..."
@@ -236,7 +230,6 @@ export default function TemplatesPage() {
 
         {filtered.length === 0 && (
           <motion.div variants={fadeUp} className="flex flex-col items-center justify-center py-20">
-            <Icon name="search" size={48} className="mb-4 text-[var(--color-ink-muted)]/30" />
             <p className="text-lg text-[var(--color-ink-muted)]">No templates found</p>
             <p className="text-sm text-[var(--color-ink-muted)]/60">Try adjusting your filters</p>
           </motion.div>
@@ -269,7 +262,7 @@ export default function TemplatesPage() {
               onClick={() => setPreviewTemplate(null)}
               className="absolute right-4 top-4 p-2 hover:bg-white/40 rounded-lg transition-colors"
             >
-              <Icon name="close" size={20} />
+              ×
             </button>
 
             <div className="mt-8">

@@ -12,7 +12,7 @@ export const BUILDER_FORM_SCHEMA: FormSection[] = [
   {
     id: 'profile',
     title: 'Profile',
-    icon: 'user',
+    icon: 'briefcase',
     description: 'Your basic identity and role.',
     fields: [
       { name: 'name', label: 'Full Name', type: 'text', placeholder: 'Surya K', required: true },

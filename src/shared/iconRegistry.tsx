@@ -151,5 +151,9 @@ export interface IconProps {
 
 export function Icon({ name, size = 18, className, strokeWidth = 2 }: IconProps) {
   const Cmp = iconRegistry[name] as LucideIcon
+  if (!Cmp) {
+    console.warn(`[Icon] Unknown icon name: ${name}`)
+    return null
+  }
   return <Cmp size={size} className={className} strokeWidth={strokeWidth} />
 }
