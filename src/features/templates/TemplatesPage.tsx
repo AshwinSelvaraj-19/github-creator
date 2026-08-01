@@ -12,7 +12,8 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { GlassCard, GlassBadge, Icon } from '@/components/ui'
+import { GlassCard, GlassBadge } from '@/components/ui'
+import { Icon } from '@/shared/iconRegistry'
 import { fadeUp, staggerContainer, staggerDefault, cardItem, hoverLift } from '@/animations/variants'
 import { getTemplatesByCategory, getTemplateCategories, templateRegistry } from '@/templates/registry'
 import { useTemplates, useBuilder } from '@/store/selectors'
@@ -268,7 +269,7 @@ export default function TemplatesPage() {
               onClick={() => setPreviewTemplate(null)}
               className="absolute right-4 top-4 p-2 hover:bg-white/40 rounded-lg transition-colors"
             >
-              <Icon name="x" size={20} />
+              <Icon name="close" size={20} />
             </button>
 
             <div className="mt-8">
