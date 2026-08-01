@@ -89,11 +89,11 @@ const ParticlesLayer = memo(function ParticlesLayer() {
 /* -------------------------------------------------------------------------- */
 
 const BLOBS = [
-  { color: 'rgba(139, 92, 246, 0.28)', size: 520, x: '-8%', y: '-5%', dur: 18, delay: 0 },
-  { color: 'rgba(6, 182, 212, 0.22)', size: 460, x: '72%', y: '3%', dur: 22, delay: 2 },
-  { color: 'rgba(236, 72, 153, 0.20)', size: 400, x: '58%', y: '58%', dur: 20, delay: 4 },
-  { color: 'rgba(249, 115, 22, 0.16)', size: 360, x: '3%', y: '62%', dur: 24, delay: 1 },
-  { color: 'rgba(59, 130, 246, 0.14)', size: 300, x: '40%', y: '30%', dur: 26, delay: 3 },
+  { color: 'rgba(139, 92, 246, 0.32)', size: 520, x: '-8%', y: '-5%', dur: 18, delay: 0 },
+  { color: 'rgba(6, 182, 212, 0.28)', size: 460, x: '72%', y: '3%', dur: 22, delay: 2 },
+  { color: 'rgba(236, 72, 153, 0.26)', size: 400, x: '58%', y: '58%', dur: 20, delay: 4 },
+  { color: 'rgba(249, 115, 22, 0.20)', size: 360, x: '3%', y: '62%', dur: 24, delay: 1 },
+  { color: 'rgba(59, 130, 246, 0.22)', size: 300, x: '40%', y: '30%', dur: 26, delay: 3 },
 ]
 
 const BlobsLayer = memo(function BlobsLayer() {
@@ -237,7 +237,7 @@ export function ImmersiveBackground() {
     }
     window.addEventListener('mousemove', onMove)
     return () => window.removeEventListener('mousemove', onMove)
-  }, [mouseX, mouseY])
+  }, [])
 
   return (
     <div ref={containerRef} className="fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
@@ -252,11 +252,16 @@ export function ImmersiveBackground() {
       <motion.div style={{ x: cardX, y: cardY }} className="absolute inset-0">
         <FloatingCardsLayer />
       </motion.div>
+      {/* Aurora vignette overlay */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            'radial-gradient(ellipse at center, transparent 40%, rgba(247, 248, 252, 0.4) 100%)',
+          background: `
+            radial-gradient(ellipse 100% 80% at 50% 50%, 
+              transparent 30%, 
+              rgba(139, 92, 246, 0.04) 60%, 
+              rgba(247, 248, 252, 0.5) 100%)
+          `,
         }}
       />
     </div>

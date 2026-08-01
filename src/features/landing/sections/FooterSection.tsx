@@ -55,7 +55,7 @@ export function FooterSection() {
       </div>
 
       {/* Footer content */}
-      <div className="glass-strong mt-px rounded-t-[var(--radius-xl)]">
+      <div className="glass-premium-glow mt-px rounded-t-[var(--radius-xl)] border-t border-[#8b5cf6]/20">
         <div className="mx-auto max-w-7xl px-6 py-16">
           <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
             {/* Brand */}
@@ -95,7 +95,7 @@ export function FooterSection() {
                     target="_blank"
                     rel="noreferrer"
                     {...hoverSocial}
-                    className="glass flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-colors hover:text-[#8b5cf6]"
+                    className="glass-premium glow-border-purple flex h-11 w-11 items-center justify-center rounded-full text-[var(--color-ink-secondary)] transition-all duration-300 hover:text-[#8b5cf6] hover:shadow-[var(--shadow-glow-purple)]"
                     aria-label={`Visit us on ${social.label}`}
                   >
                     <Icon name={social.icon} size={18} />

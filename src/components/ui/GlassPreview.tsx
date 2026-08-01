@@ -21,18 +21,18 @@ export function GlassPreview({ children, isEmpty = false, className }: GlassPrev
     <motion.div
       layout
       className={cn(
-        'glass-strong rounded-[var(--radius-lg)] p-6',
+        'glass-premium glow-border-cyan rounded-[var(--radius-lg)] p-6 shadow-[var(--shadow-glow-cyan)] transition-shadow duration-300',
         className,
       )}
     >
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-[var(--color-ink-primary)]">Live Preview</h3>
       </div>
-      <div className="max-h-[70vh] overflow-y-auto rounded-[var(--radius-md)] bg-white/50 p-6">
+      <div className="max-h-[70vh] overflow-y-auto rounded-[var(--radius-md)] bg-white/60 backdrop-blur-sm p-6">
         {isEmpty ? (
           <div className="flex flex-col items-center justify-center py-16 text-center text-[var(--color-ink-muted)]">
             <Icon name="sparkles" size={32} className="mb-3 opacity-40" />
-            <p>Fill in your details and click Generate.</p>
+            <p>Generate to see preview</p>
           </div>
         ) : (
           children

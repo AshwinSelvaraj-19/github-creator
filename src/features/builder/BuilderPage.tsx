@@ -80,79 +80,36 @@ export default function BuilderPage() {
       initial="hidden"
       animate="visible"
       exit="exit"
-      className="mx-auto max-w-7xl px-6 py-10"
+      className="relative h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100"
     >
-      <motion.div variants={fadeUp} className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gradient">README Builder</h1>
-          <p className="text-[var(--color-ink-secondary)]">
-            {loading ? 'Loading Python engine…' : ready ? 'Engine ready' : 'Initializing…'}
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <GlassButton variant="ghost" size="sm" icon="sparkles" onClick={loadDemo}>
-            Demo
-          </GlassButton>
-          <GlassButton
-            size="sm"
-            icon="play"
-            onClick={handleGenerate}
-            disabled={isGenerating}
-          >
-            {isGenerating ? 'Generating…' : 'Generate'}
-          </GlassButton>
-        </div>
-      </motion.div>
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Form panel */}
-        <motion.div variants={fadeUp}>
-          <GlassCard interactive={false}>
-            {/* Step tabs */}
-            <div className="mb-6 flex flex-wrap gap-2">
-              {BUILDER_FORM_SCHEMA.map((section) => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveStep(section.id)}
-                  className={
-                    'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ' +
-                    (activeStep === section.id
-                      ? 'bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] text-white'
-                      : 'glass text-[var(--color-ink-secondary)] hover:text-[var(--color-ink-primary)]')
-                  }
-                >
-                  <Icon name={section.icon as never} size={13} />
-                  {section.title}
-                </button>
-              ))}
+      {/* Top bar with controls */}
+      <motion.div variants={fadeUp} className="border-b border-[#8b5cf6]/10 bg-gradient-to-r from-white/80 to-white/60 backdrop-blur-xl">
+        <div className="flex h-16 items-center justify-between px-8">
+          <div className="flex items-center gap-4">
+            <div>
+              <h1 className="text-lg font-bold text-gradient">README Builder</h1>
+              <p className="text-xs text-[var(--color-ink-secondary)]">
+                {loading ? 'Loading engine…' : ready ? 'Ready' : 'Initializing…'}
+              </p>
             </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <FormRenderer
-                  section={activeSection}
-                  data={data}
-                  onChange={handleFieldChange}
-                />
-              </motion.div>
-            </AnimatePresence>
-          </GlassCard>
-        </motion.div>
-
-        {/* Preview panel */}
-        <motion.div variants={fadeUp} className="lg:sticky lg:top-24 lg:self-start">
-          <div className="mb-3 flex justify-end gap-2">
+          </div>
+          <div className="flex items-center gap-3">
+            <GlassButton variant="ghost" size="sm" icon="sparkles" onClick={loadDemo}>
+              Demo
+            </GlassButton>
+            <GlassButton
+              size="sm"
+              icon="play"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+            >
+              {isGenerating ? 'Generating…' : 'Generate'}
+            </GlassButton>
             <button
               onClick={() => navigator.clipboard.writeText(currentMarkdown)}
-              className="inline-flex items-center gap-1.5 rounded-lg glass px-3 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] transition-colors hover:text-[var(--color-ink-primary)]"
+              className="glass-premium glow-border-cyan inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-[var(--color-ink-secondary)] transition-all duration-300 hover:text-[var(--color-ink-primary)] hover:shadow-[var(--shadow-glow-cyan)]"
             >
-              <Icon name="copy" size={14} /> Copy
+              <Icon name="copy" size={16} /> Copy
             </button>
             <button
               onClick={() => {
@@ -164,18 +121,88 @@ export default function BuilderPage() {
                 a.click()
                 URL.revokeObjectURL(url)
               }}
-              className="inline-flex items-center gap-1.5 rounded-lg glass px-3 py-1.5 text-xs font-medium text-[var(--color-ink-secondary)] transition-colors hover:text-[var(--color-ink-primary)]"
+              className="glass-premium glow-border-cyan inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium text-[var(--color-ink-secondary)] transition-all duration-300 hover:text-[var(--color-ink-primary)] hover:shadow-[var(--shadow-glow-cyan)]"
             >
-              <Icon name="download" size={14} /> Download
+              <Icon name="download" size={16} /> Download
             </button>
           </div>
-          <GlassPreview isEmpty={!currentMarkdown}>
-            <div className="prose prose-sm max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {currentMarkdown}
-              </ReactMarkdown>
+        </div>
+      </motion.div>
+
+      {/* 3-column workspace */}
+      <div className="flex h-[calc(100vh-8rem)] overflow-hidden">
+        {/* Left sidebar - Form sections */}
+        <motion.div variants={fadeUp} className="w-80 border-r border-[#8b5cf6]/10 bg-white/40 backdrop-blur-sm overflow-y-auto">
+          <div className="flex flex-col gap-2 p-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--color-ink-muted)] px-2">Form Sections</h3>
+            {BUILDER_FORM_SCHEMA.map((section) => (
+              <button
+                key={section.id}
+                onClick={() => setActiveStep(section.id)}
+                className={
+                  'flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ' +
+                  (activeStep === section.id
+                    ? 'glass-premium-glow glow-border-purple bg-white/70 text-[var(--color-ink-primary)] shadow-[var(--shadow-glow-purple)]'
+                    : 'text-[var(--color-ink-secondary)] hover:bg-white/50')
+                }
+              >
+                <Icon name={section.icon as never} size={16} />
+                <div className="flex-1 text-left">
+                  <div className="font-semibold">{section.title}</div>
+                  <div className="text-xs text-[var(--color-ink-muted)]">{section.fields?.length || 0} fields</div>
+                </div>
+                {activeStep === section.id && <Icon name="checkCircle" size={14} className="text-[#10b981]" />}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Center - Form editor */}
+        <motion.div variants={fadeUp} className="flex-1 border-r border-[#8b5cf6]/10 overflow-y-auto">
+          <div className="p-8">
+            <GlassCard interactive={false} premium glow="multi">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeStep}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  <div className="mb-6">
+                    <h2 className="text-2xl font-bold text-gradient mb-2">{activeSection.title}</h2>
+                    <p className="text-sm text-[var(--color-ink-secondary)]">
+                      Configure your {activeSection.title.toLowerCase()} settings
+                    </p>
+                  </div>
+                  <FormRenderer
+                    section={activeSection}
+                    data={data}
+                    onChange={handleFieldChange}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </GlassCard>
+          </div>
+        </motion.div>
+
+        {/* Right - Live preview */}
+        <motion.div variants={fadeUp} className="w-96 bg-white/40 backdrop-blur-sm overflow-y-auto sticky top-0">
+          <div className="p-6">
+            <div className="mb-4">
+              <h3 className="text-sm font-bold text-[var(--color-ink-primary)] mb-2">Live Preview</h3>
+              <div className="text-xs text-[var(--color-ink-muted)]">
+                {currentMarkdown.length > 0 ? `${currentMarkdown.length} characters` : 'Generate to see preview'}
+              </div>
             </div>
-          </GlassPreview>
+            <GlassPreview isEmpty={!currentMarkdown} className="max-h-[calc(100vh-12rem)]">
+              <div className="prose prose-sm max-w-none text-xs">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {currentMarkdown}
+                </ReactMarkdown>
+              </div>
+            </GlassPreview>
+          </div>
         </motion.div>
       </div>
     </motion.div>

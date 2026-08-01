@@ -3,6 +3,7 @@
  *
  * Includes ripple-ready press animation and hover lift. Use `as` via `motion`
  * props for link buttons (wrap in a Link and render GlassButton inside).
+ * Now with premium gradients and enhanced glow effects.
  */
 
 import { forwardRef } from 'react'
@@ -10,7 +11,7 @@ import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '@/utils/cn'
 import { Icon, type IconName } from '@/shared/iconRegistry'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'secondary-glow'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 export interface GlassButtonProps extends HTMLMotionProps<'button'> {
@@ -23,11 +24,13 @@ export interface GlassButtonProps extends HTMLMotionProps<'button'> {
 
 const variantClass: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-[#8b5cf6] to-[#06b6d4] text-white shadow-[var(--shadow-glow-purple)]',
-  secondary: 'glass text-[var(--color-ink-primary)]',
+    'bg-gradient-to-r from-[#8b5cf6] via-[#06b6d4] to-[#06b6d4] text-white shadow-[var(--shadow-glow-purple)] hover:shadow-[var(--shadow-glow-multi)]',
+  secondary: 'glass-premium text-[var(--color-ink-primary)] hover:shadow-[var(--shadow-glass-lg)]',
+  'secondary-glow':
+    'glass-premium-glow text-[var(--color-ink-primary)] glow-border-purple hover:shadow-[var(--shadow-glow-purple)]',
   ghost:
     'bg-transparent text-[var(--color-ink-secondary)] hover:text-[var(--color-ink-primary)] hover:bg-white/40',
-  danger: 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20',
+  danger: 'bg-[#ef4444]/10 text-[#ef4444] border border-[#ef4444]/20 hover:bg-[#ef4444]/20',
 }
 
 const sizeClass: Record<ButtonSize, string> = {
