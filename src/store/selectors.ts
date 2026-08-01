@@ -17,64 +17,64 @@ import type { ThemeSlice } from './slices/theme.slice'
 import type { SettingsSlice } from './slices/settings.slice'
 import type { AISlice } from './slices/ai.slice'
 
-export const useBuilder = () =>
-  useStore((s): BuilderSlice => ({
-    data: s.data,
-    isGenerating: s.isGenerating,
-    setField: s.setField,
-    setTemplate: s.setTemplate,
-    setData: s.setData,
-    resetData: s.resetData,
-    setGenerating: s.setGenerating,
-  }))
+export const useBuilder = (): BuilderSlice => {
+  const data = useStore((s) => s.data)
+  const isGenerating = useStore((s) => s.isGenerating)
+  const setField = useStore((s) => s.setField)
+  const setTemplate = useStore((s) => s.setTemplate)
+  const setData = useStore((s) => s.setData)
+  const resetData = useStore((s) => s.resetData)
+  const setGenerating = useStore((s) => s.setGenerating)
+  return { data, isGenerating, setField, setTemplate, setData, resetData, setGenerating }
+}
 
-export const useTemplates = () =>
-  useStore((s): TemplatesSlice => ({
-    selectedTemplate: s.selectedTemplate,
-    templateFilter: s.templateFilter,
-    setSelectedTemplate: s.setSelectedTemplate,
-    setTemplateFilter: s.setTemplateFilter,
-  }))
+export const useTemplates = (): TemplatesSlice => {
+  const selectedTemplate = useStore((s) => s.selectedTemplate)
+  const templateFilter = useStore((s) => s.templateFilter)
+  const setSelectedTemplate = useStore((s) => s.setSelectedTemplate)
+  const setTemplateFilter = useStore((s) => s.setTemplateFilter)
+  return { selectedTemplate, templateFilter, setSelectedTemplate, setTemplateFilter }
+}
 
-export const useHistory = () =>
-  useStore((s): HistorySlice => ({
-    history: s.history,
-    saveHistory: s.saveHistory,
-    deleteHistory: s.deleteHistory,
-    clearHistory: s.clearHistory,
-  }))
+export const useHistory = (): HistorySlice => {
+  const history = useStore((s) => s.history)
+  const saveHistory = useStore((s) => s.saveHistory)
+  const deleteHistory = useStore((s) => s.deleteHistory)
+  const clearHistory = useStore((s) => s.clearHistory)
+  return { history, saveHistory, deleteHistory, clearHistory }
+}
 
-export const usePreview = () =>
-  useStore((s): PreviewSlice => ({
-    previewMode: s.previewMode,
-    previewFullscreen: s.previewFullscreen,
-    currentMarkdown: s.currentMarkdown,
-    setPreviewMode: s.setPreviewMode,
-    setPreviewFullscreen: s.setPreviewFullscreen,
-    setMarkdown: s.setMarkdown,
-  }))
+export const usePreview = (): PreviewSlice => {
+  const previewMode = useStore((s) => s.previewMode)
+  const previewFullscreen = useStore((s) => s.previewFullscreen)
+  const currentMarkdown = useStore((s) => s.currentMarkdown)
+  const setPreviewMode = useStore((s) => s.setPreviewMode)
+  const setPreviewFullscreen = useStore((s) => s.setPreviewFullscreen)
+  const setMarkdown = useStore((s) => s.setMarkdown)
+  return { previewMode, previewFullscreen, currentMarkdown, setPreviewMode, setPreviewFullscreen, setMarkdown }
+}
 
-export const useTheme = () =>
-  useStore((s): ThemeSlice => ({
-    themeMode: s.themeMode,
-    toggleTheme: s.toggleTheme,
-    setThemeMode: s.setThemeMode,
-  }))
+export const useTheme = (): ThemeSlice => {
+  const themeMode = useStore((s) => s.themeMode)
+  const toggleTheme = useStore((s) => s.toggleTheme)
+  const setThemeMode = useStore((s) => s.setThemeMode)
+  return { themeMode, toggleTheme, setThemeMode }
+}
 
-export const useSettings = () =>
-  useStore((s): SettingsSlice => ({
-    autosave: s.autosave,
-    showLineNumbers: s.showLineNumbers,
-    compactMode: s.compactMode,
-    setAutosave: s.setAutosave,
-    setShowLineNumbers: s.setShowLineNumbers,
-    setCompactMode: s.setCompactMode,
-  }))
+export const useSettings = (): SettingsSlice => {
+  const autosave = useStore((s) => s.autosave)
+  const showLineNumbers = useStore((s) => s.showLineNumbers)
+  const compactMode = useStore((s) => s.compactMode)
+  const setAutosave = useStore((s) => s.setAutosave)
+  const setShowLineNumbers = useStore((s) => s.setShowLineNumbers)
+  const setCompactMode = useStore((s) => s.setCompactMode)
+  return { autosave, showLineNumbers, compactMode, setAutosave, setShowLineNumbers, setCompactMode }
+}
 
-export const useAI = () =>
-  useStore((s): AISlice => ({
-    aiStatus: s.aiStatus,
-    aiError: s.aiError,
-    setAIStatus: s.setAIStatus,
-    setAIError: s.setAIError,
-  }))
+export const useAI = (): AISlice => {
+  const aiStatus = useStore((s) => s.aiStatus)
+  const aiError = useStore((s) => s.aiError)
+  const setAIStatus = useStore((s) => s.setAIStatus)
+  const setAIError = useStore((s) => s.setAIError)
+  return { aiStatus, aiError, setAIStatus, setAIError }
+}
