@@ -13,7 +13,7 @@ Generate beautiful, animated GitHub Profile README files with live preview. Choo
 - **Section Toggles** — Show or hide individual sections
 - **Dark/Light Theme** — Toggle between dark and light modes
 - **README History** — Saved in LocalStorage with search and filter
-- **Copy & Download** — Copy Markdown or download as README.md
+- **Copy & Download** — Copy Markdown or download as README.md    
 - **Snake Workflow Generator** — Generate the GitHub Actions workflow for contribution snake
 - **Demo Data** — Pre-filled demo data to try the generator quickly
 - **Fully Responsive** — Works on desktop, tablet, and mobile
